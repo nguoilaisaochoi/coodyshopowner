@@ -1,22 +1,9 @@
 import {Image, ImageBackground, StyleSheet, Text, View} from 'react-native';
-import React, {useEffect} from 'react';
+import React from 'react';
 import {appInfor} from '../constants/appInfor';
 import {appColor} from '../constants/appColor';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SplashScreen = () => {
-  useEffect(() => {
-    const clearMessageList = async () => {
-      try {
-        await AsyncStorage.removeItem('messageList');
-        console.log('Message list cleared successfully.');
-      } catch (error) {
-        console.error('Failed to clear message list:', error);
-      }
-    };
-
-    clearMessageList();
-  }, []);
   return (
     <ImageBackground
       style={styles.container}

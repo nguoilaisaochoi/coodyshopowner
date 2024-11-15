@@ -64,7 +64,7 @@ const HomeScreen = () => {
       <View style={styles.content}>
         <View style={[{backgroundColor: appColor.primary}, styles.iditem]}>
           <TextComponent
-            text={'Đơn: ' + (index + 1)} 
+            text={'Đơn: ' + (index + 1)}
             fontsize={12}
             color={appColor.white}
             fontFamily={fontFamilies.semiBold}
@@ -132,7 +132,7 @@ const HomeScreen = () => {
         />
       </View>
       <View style={styles.body}>
-        {!Order && (
+        {!Order ? (
           <View style={styles.conentnull}>
             <Image
               style={styles.img}
@@ -145,8 +145,7 @@ const HomeScreen = () => {
               fontsize={20}
             />
           </View>
-        )}
-        {Order && (
+        ) : (
           <View>
             {/*flatlist */}
             <FlatList

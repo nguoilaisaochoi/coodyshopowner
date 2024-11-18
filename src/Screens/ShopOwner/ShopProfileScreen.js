@@ -17,24 +17,25 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useDispatch, useSelector} from 'react-redux';
 import {validatePhone} from '../../utils/Validators';
-import {GetShipper, UpdateShipper} from '../../Redux/Reducers/ShipperReducer';
+import {GetShipper, UpdateShipper} from '../../Redux/Reducers/ShopOwnerReducer';
 import LoadingModal from '../../modal/LoadingModal';
 import {uploadImageToCloudinary} from './ComposenentShopOwner/UploadImage';
 import SelectImage from './ComposenentShopOwner/SelectImage';
 
 const ShopProfileScreen = () => {
-  const {updateStatus, getData} = useSelector(state => state.shipper); //demo-- có thể tinh chỉnh lại
+  const {updateStatus, getData} = useSelector(state => state.shopowner); //demo-- có thể tinh chỉnh lại
   const [name, setName] = useState(getData?.name ?? null);
   const [category, setCategory] = useState(getData?.category ?? null);
   const [phone, setPhone] = useState(getData?.phone ?? null);
+  const [address, setAddress] = useState(getData?.address ?? null);
   const dispath = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = useState(getData?.open ?? null);//thời gian mở cửa
-  const [close, setClose] = useState(getData?.close ?? null);//thời gian đóng cửa
-  const [timeType, setTimeType] = useState(null);//phân biệt thời gian mở và đóng để setState
-  const [imagePath, setImagePath] = useState(null);//nhận ảnh khi vừa chọn từ thư viện or chụp
-  const [avatar, setAvatar] = useState(getData?.image ?? null); //getData?.image[0]
-  const [showPicker, setshowPicker] = useState(false);//bật/tắt DateTimePicker
+  const [open, setOpen] = useState(getData?.open ?? null); //thời gian mở cửa
+  const [close, setClose] = useState(getData?.close ?? null); //thời gian đóng cửa
+  const [timeType, setTimeType] = useState(null); //phân biệt thời gian mở và đóng để setState
+  const [imagePath, setImagePath] = useState(null); //nhận ảnh khi vừa chọn từ thư viện or chụp
+  const [avatar, setAvatar] = useState(getData?.images[0] ?? null); //getData?.image[0]
+  const [showPicker, setshowPicker] = useState(false); //bật/tắt DateTimePicker
   const [isSheetOpen, setIsSheetOpen] = useState(false); //quản lí state khi nhấn vào avatar để chọn ảnh
   const [correct, setCorrect] = useState(true); //quản lí state khi đúng mới cho cập nhật(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   const [isclick, setisClick] = useState(false); //đã click vào button cập nhật hay chưa
@@ -116,9 +117,9 @@ const ShopProfileScreen = () => {
               <Image
                 style={{width: 99, height: 99}}
                 source={{
-                  uri: avatar
-                    ? avatar
-                    : 'https://res.cloudinary.com/djywo5wza/image/upload/v1729757743/clone_viiphm.png',
+                  uri:
+                    avatar ??
+                    'https://res.cloudinary.com/djywo5wza/image/upload/v1729757743/clone_viiphm.png',
                 }}
               />
             </View>
@@ -153,9 +154,9 @@ const ShopProfileScreen = () => {
         />
         <TextInputComponent
           text={'ĐỊA CHỈ'}
-          value={phone}
+          value={address}
           onChangeText={text => setPhone(text)}
-          error={phone ? checkPhone(phone) : 'Đây là thông tin bắt buộc'}
+          error={address ? null : 'Đây là thông tin bắt buộc'}
         />
         <TextInputComponent
           text={'HOTLINE'}
@@ -315,5 +316,8 @@ const styles = StyleSheet.create({
     marginTop: '4.3%',
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  footer: {
+    marginTop: '10%',
   },
 });

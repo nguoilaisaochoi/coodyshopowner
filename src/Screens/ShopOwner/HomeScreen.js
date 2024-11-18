@@ -13,17 +13,53 @@ import TextComponent from '../../components/TextComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
 import {formatCurrency} from '../../utils/Validators';
 import ButtonComponent from '../../components/ButtonComponent';
+import {connectSocket, disconnectSocket, getSocket} from '../../socket/socket';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  GetProduct,
+  GetProductCategories,
+  GetShop,
+} from '../../Redux/Reducers/ShopOwnerReducer';
 
 const HomeScreen = () => {
-  const [Order, setOrder] = useState(null); //set,read api data đơn hàng
+  const [Order, setOrder] = useState([]); //set,read api data đơn hàng
+  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
+  const {getData, getStatus} = useSelector(state => state.shopowner); //data&status getshipper
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
   const [value, setValue] = useState(null); //lưu lí do huỷ đơn
-  /*[giả lập], set mẫu 2 đơn hàng vào Order 
-  --khi không có đơn sẽ hiện view chưa có đơn*/
+  const IDshopowner = useState('671346345647791835ac3a3b');
+  const dispatch = useDispatch();
   useEffect(() => {
-    setOrder(data);
+    connectSocket();
+    callAPI();
+    const socketInstance = getSocket();
+    socketInstance.emit('join_room', IDshopowner);
+    const handleNewOrder = dataGot => {
+      const newOrder = dataGot.order;
+      setOrder(oldOrders => [...oldOrders, newOrder]);
+    };
+    socketInstance.on('new_order_created', handleNewOrder);
+    return () => {
+      disconnectSocket();
+    };
   }, []);
+  const callAPI = () => {
+    dispatch(GetShop(user._id));
+    dispatch(GetProduct(user._id));
+    dispatch(GetProductCategories(user._id));
+  };
+  //log
+  useEffect(() => {
+    if (getStatus == 'succeeded') {
+      console.log(getData);
+    }
+  }, [getStatus]);
 
+  const confirmOrder = orderId => {
+    const socketInstance = getSocket();
+    socketInstance.emit('confirm_order', orderId);
+    setOrder(prevOrders => prevOrders.filter(order => order._id !== orderId));
+  };
   //danh sách các sản phẩm chi tiết (số lượng thông tin sản phẩm của đơn)
   const renderItemdetail = ({item}) => {
     const {name, images, price, quantity} = item;
@@ -59,12 +95,12 @@ const HomeScreen = () => {
 
   //list đơn hàng
   const renderItem = ({item, index}) => {
-    const {items, totalPrice} = item;
+    const {_id, items, totalPrice} = item;
     return (
       <View style={styles.content}>
         <View style={[{backgroundColor: appColor.primary}, styles.iditem]}>
           <TextComponent
-            text={'Đơn: ' + (index + 1)}
+            text={'Đơn: ' + item._id.slice(-3)}
             fontsize={12}
             color={appColor.white}
             fontFamily={fontFamilies.semiBold}
@@ -86,12 +122,16 @@ const HomeScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.6}
-            style={[{backgroundColor: appColor.primary}, styles.iditem]}>
+            style={[{backgroundColor: appColor.primary}, styles.iditem]}
+            onPress={() => {
+              confirmOrder(_id);
+            }}>
             <TextComponent
-              text={'Xác nhận'}
+              text={'Đã chuẩn bị món'}
               fontsize={12}
               color={appColor.white}
               fontFamily={fontFamilies.semiBold}
+              styles={{textAlign: 'center'}}
             />
           </TouchableOpacity>
         </View>
@@ -99,7 +139,7 @@ const HomeScreen = () => {
         <FlatList
           data={items}
           renderItem={renderItemdetail}
-          keyExtractor={items => items._id.$oid}
+          keyExtractor={items => items._id}
         />
         {/**/}
         <View style={styles.itembottom}>
@@ -132,7 +172,7 @@ const HomeScreen = () => {
         />
       </View>
       <View style={styles.body}>
-        {!Order ? (
+        {Order.length == 0 ? (
           <View style={styles.conentnull}>
             <Image
               style={styles.img}
@@ -151,7 +191,7 @@ const HomeScreen = () => {
             <FlatList
               data={Order}
               renderItem={renderItem}
-              keyExtractor={item => item._id.$oid}
+              keyExtractor={item => item._id}
               showsVerticalScrollIndicator={false}
             />
           </View>

@@ -10,14 +10,15 @@ import React, {useEffect, useState} from 'react';
 import {appColor} from '../../constants/appColor';
 import TextComponent from './ComposenentShopOwner/TextComponent';
 import {useNavigation} from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 const FoodGroup = () => {
   const [Group, setGroup] = useState(null);
-
+  const {getData,ProductCategoriesData} = useSelector(state => state.shopowner); //data&status getshipper
   //set data mẫu khi vừa vào component
   const navigation = useNavigation();
   useEffect(() => {
-    setGroup(data);
+    setGroup(ProductCategoriesData);
   }, []);
 
   const renderItem = ({item}) => {
@@ -41,7 +42,7 @@ const FoodGroup = () => {
       <FlatList
         data={Group}
         renderItem={renderItem}
-        keyExtractor={item => item._id.$oid}
+        keyExtractor={item => item._id}
       />
       <TouchableOpacity
         style={styles.imgadd}

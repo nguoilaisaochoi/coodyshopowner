@@ -5,6 +5,7 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {appColor} from '../../constants/appColor';
@@ -12,15 +13,20 @@ import TextComponent from './ComposenentShopOwner/TextComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
 import {formatCurrency} from '../../utils/Validators';
 import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
 
 const FoodList = () => {
   const navigation = useNavigation();
+  const {getproductData, productStatus,getData} = useSelector(state => state.shopowner); //data&status getshipper
   const [Food, setfood] = useState(null);
 
-  //set data mẫu khi vừa vào component
+  //set data khi vừa vào component
   useEffect(() => {
-    setfood(data);
-  }, []);
+    if (productStatus == 'succeeded') {
+      setfood(getproductData);
+    }
+    console.log(getData.shopCategory)
+  }, [productStatus]);
 
   const renderItem = ({item}) => {
     const {name, price, images, description} = item;
@@ -58,7 +64,7 @@ const FoodList = () => {
       <FlatList
         data={Food}
         renderItem={renderItem}
-        keyExtractor={item => item._id.$oid}
+        keyExtractor={item => item._id}
       />
       <TouchableOpacity
         style={styles.imgadd}

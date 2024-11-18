@@ -5,6 +5,7 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  ToastAndroid,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import HeaderComponent from '../../components/HeaderComponent';
@@ -15,25 +16,36 @@ import TextComponent from '../../components/TextComponent';
 import InputFood2 from './ComposenentShopOwner/InputFood2';
 import ButtonComponent from '../../components/ButtonComponent';
 import SelectImage from './ComposenentShopOwner/SelectImage';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  AddProduct,
+  GetProduct,
+  UpdateProduct,
+} from '../../Redux/Reducers/ShopOwnerReducer';
+import {useNavigation} from '@react-navigation/native';
 
 const EditFood = ({route}) => {
+  const navigation = useNavigation();
+  const {updateStatus, productStatus, AddProductStatus, ProductCategoriesData} =
+    useSelector(state => state.shopowner); //data&status getshipper
+  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const {item} = route.params || {}; // Sử dụng || để đảm bảo item không phải là null
-  const [name, setName] = useState(null);
-  const [price, setPrice] = useState(null);
-  const [image, setImage] = useState(null);
+  const [name, setName] = useState(item?.name ?? null);
+  const [price, setPrice] = useState(item?.price.toString() ?? null);
+  const [image, setImage] = useState(item?.images[0] ?? null);
   const [imagePath, setImagePath] = useState(null);
-  const [category, setCategory] = useState(group[0].value); //nhóm
+  const [category, setCategory] = useState(
+    item?.categories[0] ?? ProductCategoriesData[0],
+  ); //nhóm
   const [status, setStatus] = useState(state[0].value);
   const [IsSheetOpen, setIsSheetOpen] = useState(false);
+  const [click, setclick] = useState(false);
+  const [correct, setCorrect] = useState(item ? true : false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (item) {
-      setName(item.name);
-      setPrice(item.price.toString());
-      setImage(item.images[0]);
-      console.log(item.images[0]);
-    }
-  }, []);
+    console.log(JSON.stringify(category, null, 2));
+  }, [category]);
 
   //lấy ảnh sau nhận ảnh bên SelectImage
   useEffect(() => {
@@ -41,6 +53,51 @@ const EditFood = ({route}) => {
       setImage(imagePath.uri);
     }
   }, [imagePath]);
+
+  const update = () => {
+    setclick(true);
+    const body = {
+      name: name,
+      price: price,
+      //status: status,
+      //image: await uploadImageToCloudinary(imagePath),
+    };
+    dispatch(UpdateProduct({id: item._id, data: body}));
+  };
+
+  const add = () => {
+    setclick(true);
+    const body = {
+      name: name,
+      price: price,
+      images: [image],
+      categories: [category._id],
+      description: 'Mô tả sản phẩm',
+      shopOwner: user._id,
+    };
+    console.log(body);
+    dispatch(AddProduct({data: body}));
+  };
+  //khi cap nhat or add thanh cong
+  useEffect(() => {
+    if (updateStatus == 'succeeded' || AddProductStatus == 'succeeded') {
+      dispatch(GetProduct(user._id));
+    }
+  }, [updateStatus, AddProductStatus]);
+
+  //khi goi lai danh sach san pham thanh cong
+  useEffect(() => {
+    if (productStatus == 'succeeded' && click) {
+      navigation.goBack();
+      setclick(false);
+      ToastAndroid.show('Thành công', ToastAndroid.SHORT);
+    }
+  }, [productStatus]);
+
+  //kiem tra da dien day du thong tin chua
+  useEffect(() => {
+    name && price ? setCorrect(true) : setCorrect(false);
+  }, [name, price]);
 
   return (
     <View style={styles.container}>
@@ -86,10 +143,11 @@ const EditFood = ({route}) => {
         />
         <InputFood2
           text={'Nhóm'}
-          data={group}
-          value={group}
+          data={item ? item.categories : ProductCategoriesData}
+          value={item ? category.categoryProduct_name : category.name}
+          labelField={item ? 'categoryProduct_name' : 'name'}
           onChange={item => {
-            setCategory(item.value);
+            setCategory(item);
           }}
         />
         <InputFood2
@@ -117,10 +175,21 @@ const EditFood = ({route}) => {
               text={'Sửa món'}
               width={'45%'}
               color={appColor.white}
+              styles={{opacity: correct ? 1 : 0.5}}
+              onPress={() => {
+                correct ? update() : null;
+              }}
             />
           </>
         ) : (
-          <ButtonComponent text={'Yêu cầu thêm'} color={appColor.white} />
+          <ButtonComponent
+            text={'Yêu cầu thêm'}
+            color={appColor.white}
+            styles={{opacity: correct ? 1 : 0.5}}
+            onPress={() => {
+              correct ? add() : null;
+            }}
+          />
         )}
       </View>
       {IsSheetOpen && (

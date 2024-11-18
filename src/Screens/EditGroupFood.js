@@ -19,6 +19,7 @@ const EditGroupFood = ({route}) => {
       setName(item.name);
       setImage(item.image);
     }
+    console.log(item)
   }, []);
 
   //lấy ảnh sau nhận ảnh bên SelectImage

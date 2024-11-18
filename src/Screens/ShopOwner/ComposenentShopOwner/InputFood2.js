@@ -4,16 +4,16 @@ import {Dropdown} from 'react-native-element-dropdown';
 import {appColor} from '../../../constants/appColor';
 import TextComponent from '../../../components/TextComponent';
 
-const InputFood2 = ({text, data, value, onChange}) => {
+const InputFood2 = ({text, data, value, onChange, labelField, valueField}) => {
   return (
     <View style={styles.view}>
       <TextComponent text={text} styles={{textTransform: 'uppercase'}} />
       <Dropdown
         style={styles.dropdown}
         data={data}
-        labelField="label"
-        valueField="value"
-        placeholder={data[0].label}
+        labelField={labelField ?? 'label'}
+        valueField={valueField ?? 'value'}
+        placeholder={value}
         value={value}
         onChange={onChange}
       />

@@ -19,13 +19,13 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {useDispatch, useSelector} from 'react-redux';
 import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
 import {validateEmail, validatePhone} from '../../utils/Validators';
-import {GetShipper, UpdateShipper} from '../../Redux/Reducers/ShipperReducer';
+import {GetShipper, UpdateShipper} from '../../Redux/Reducers/ShopOwnerReducer';
 import LoadingModal from '../../modal/LoadingModal';
 import {uploadImageToCloudinary} from './ComposenentShopOwner/UploadImage';
 import {onImageLibrary, onOpenCamera} from './ComposenentShopOwner/ImagePicker';
 
 const ProfileScreen = () => {
-  const {updateStatus, getData} = useSelector(state => state.shipper); //demo-- có thể tinh chỉnh lại
+  const {updateStatus, getData} = useSelector(state => state.shopowner); //demo-- có thể tinh chỉnh lại
   const [name, setName] = useState(getData?.name ?? null);
   const [email, setEmail] = useState(getData?.email ?? null);
   const [phone, setPhone] = useState(getData?.phone ?? null);
@@ -34,7 +34,7 @@ const ProfileScreen = () => {
     getData?.gender == 'male' ? 'Nam' : 'Nữ',
   );
   const [imagePath, setImagePath] = useState(null);
-  const [avatar, setAvatar] = useState(getData?.image ?? null); //getData?.image[0]
+  const [avatar, setAvatar] = useState(getData?.images[0] ?? null); //getData?.image[0]
   const [showPicker, setshowPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dispath = useDispatch();

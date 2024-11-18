@@ -53,11 +53,11 @@ const LoginScreen = ({navigation}) => {
 
   //quản lí đăng nhập
   useEffect(() => {
-    if (status == 'failed'||status == 'success' && signbtn == true && user?.role != 'shopOwner') {
+    if (status != 'loading' && signbtn == true && user?.role != 'shopOwner') {
       setIsLoading(false);
       setTimeout(() => {
         Alert.alert('Thông báo', 'Thông tin đăng nhập không đúng');
-        setsignbtn(true);
+        setsignbtn(false);
       }, 200);
     }
   }, [status]);

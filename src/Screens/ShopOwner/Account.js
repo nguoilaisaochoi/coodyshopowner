@@ -5,15 +5,14 @@ import ItemAccount from './ComposenentShopOwner/ItemAccount';
 import {useNavigation} from '@react-navigation/native';
 import {logout} from '../../Redux/Reducers/LoginSlice';
 import {useDispatch, useSelector} from 'react-redux';
-import {GetShipper} from '../../Redux/Reducers/ShipperReducer';
 import TextComponent from './ComposenentShopOwner/TextComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
-import {opacity} from 'react-native-reanimated/lib/typescript/Colors';
 
 const Account = () => {
   const navigation = useNavigation();
   const {user} = useSelector(state => state.login);
-  const {getData, getStatus} = useSelector(state => state.shipper);
+  const {getData, getStatus} = useSelector(state => state.shopowner); //data&status getshipper
+
   const dispatch = useDispatch();
 
   //navigation
@@ -33,7 +32,7 @@ const Account = () => {
             styles={{opacity: 0.9}}
           />
           <TextComponent
-            text={'NAME'}
+            text={getData.name}
             fontsize={23}
             color={appColor.white}
             fontfamily={fontFamilies.bold}
@@ -43,7 +42,9 @@ const Account = () => {
           <Image
             style={{flex: 1}}
             source={{
-              uri: 'https://res.cloudinary.com/djywo5wza/image/upload/v1729757743/clone_viiphm.png',
+              uri:
+                getData.images[0] ??
+                'https://res.cloudinary.com/djywo5wza/image/upload/v1729757743/clone_viiphm.png',
             }}
           />
         </View>

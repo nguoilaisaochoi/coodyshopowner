@@ -14,7 +14,6 @@ const InputFood1 = ({title, value, onChangeText}) => {
         style={styles.input}
         value={value}
         onChangeText={onChangeText}
-        keyboardType="number"
       />
     </View>
   );

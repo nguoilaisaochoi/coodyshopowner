@@ -2,7 +2,7 @@ import {configureStore, combineReducers} from '@reduxjs/toolkit';
 
 import loginReducer from './Reducers/LoginSlice';
 
-import ShippReducer from './Reducers/ShipperReducer';
+
 import {
   persistStore,
   persistReducer,
@@ -14,6 +14,7 @@ import {
   REGISTER,
 } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ShopOwnerReducer from './Reducers/ShopOwnerReducer';
 
 const persistConfig = {
   key: 'root',
@@ -22,7 +23,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   login: loginReducer,
-  shipper: ShippReducer,
+  shopowner: ShopOwnerReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -26,6 +26,7 @@ const SelectImage = ({setImagePath, setIsSheetOpen}) => {
       openSheet();
     }, 100);
   }, []);
+  
   return (
     <TouchableOpacity
       activeOpacity={1}

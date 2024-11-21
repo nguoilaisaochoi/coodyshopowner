@@ -44,6 +44,19 @@ export const GetRevenue = createAsyncThunk(
   },
 );
 
+export const GetShopCategories = createAsyncThunk(
+  'getshopcategories',
+  async () => {
+    const response = await AxiosInstance().get(`shopCategories/`);
+    return response.data;
+  },
+);
+
+export const UpdateShop = createAsyncThunk('updateshop', async ({id, data}) => {
+  const response = await AxiosInstance().put(`shopOwner/update/${id}`, data);
+  return response.data;
+});
+
 export const ShopSlice = createSlice({
   name: 'shopwner',
   initialState: {
@@ -59,6 +72,10 @@ export const ShopSlice = createSlice({
     ProductCategoriesStatus: {},
     AddProductData: {},
     AddProductStatus: 'ide',
+    GetShopCategoriesData: {},
+    GetShopCategoriesStatus: 'ide',
+    UpdateShopData: {},
+    UpdateShopStatus: 'ide',
   },
   reducers: {},
   extraReducers: builder => {
@@ -134,6 +151,30 @@ export const ShopSlice = createSlice({
       .addCase(AddProduct.rejected, (state, action) => {
         state.AddProductStatus = 'failed';
         console.error('Lỗi them sp: ' + action.error.message);
+      })
+      //lấy loại bán hàng
+      .addCase(GetShopCategories.pending, (state, action) => {
+        state.GetShopCategoriesStatus = 'loading';
+      })
+      .addCase(GetShopCategories.fulfilled, (state, action) => {
+        state.GetShopCategoriesStatus = 'succeeded';
+        state.GetShopCategoriesData = action.payload;
+      })
+      .addCase(GetShopCategories.rejected, (state, action) => {
+        state.GetShopCategoriesStatus = 'failed';
+        console.error('Lỗi lấy loại bán hàng: ' + action.error.message);
+      })
+      //cập nhật shop
+      .addCase(UpdateShop.pending, (state, action) => {
+        state.UpdateShopStatus = 'loading';
+      })
+      .addCase(UpdateShop.fulfilled, (state, action) => {
+        state.UpdateShopStatus = 'succeeded';
+        state.UpdateShopData = action.payload;
+      })
+      .addCase(UpdateShop.rejected, (state, action) => {
+        state.UpdateShopStatus = 'failed';
+        console.error('Lỗi cập nhật: ' + action.error.message);
       });
   },
 });

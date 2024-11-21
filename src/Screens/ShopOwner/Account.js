@@ -7,6 +7,7 @@ import {logout} from '../../Redux/Reducers/LoginSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import TextComponent from './ComposenentShopOwner/TextComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
+import {GetShopCategories} from '../../Redux/Reducers/ShopOwnerReducer';
 
 const Account = () => {
   const navigation = useNavigation();
@@ -50,13 +51,13 @@ const Account = () => {
         </View>
       </View>
       <View style={styles.body}>
-        <ItemAccount
+        {/*        <ItemAccount
           screen={() => {
             gotoScreen('Profile');
           }}
           text={'Thông tin cá nhân của bạn'}
           icon={'user'}
-        />
+        /> */}
         <ItemAccount
           screen={() => {
             gotoScreen('ShopProfile');

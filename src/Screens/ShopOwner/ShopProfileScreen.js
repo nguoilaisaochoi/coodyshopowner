@@ -6,7 +6,7 @@ import {
   ScrollView,
   ToastAndroid,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import HeaderComponent from '../../components/HeaderComponent';
 import {appColor} from '../../constants/appColor';
@@ -17,15 +17,22 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useDispatch, useSelector} from 'react-redux';
 import {validatePhone} from '../../utils/Validators';
-import {GetShipper, UpdateShipper} from '../../Redux/Reducers/ShopOwnerReducer';
+import {
+  GetShop,
+  GetShopCategories,
+  UpdateShop,
+} from '../../Redux/Reducers/ShopOwnerReducer';
 import LoadingModal from '../../modal/LoadingModal';
-import {uploadImageToCloudinary} from './ComposenentShopOwner/UploadImage';
+
 import SelectImage from './ComposenentShopOwner/SelectImage';
 
-const ShopProfileScreen = () => {
-  const {updateStatus, getData} = useSelector(state => state.shopowner); //demo-- có thể tinh chỉnh lại
+const ShopProfileScreen = ({navigation, route}) => {
+  const {datacate} = route.params || {};
+  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
+  const {updateStatus, getData, GetShopCategoriesData, UpdateShopStatus} =
+    useSelector(state => state.shopowner);
   const [name, setName] = useState(getData?.name ?? null);
-  const [category, setCategory] = useState(getData?.category ?? null);
+  const [category, setCategory] = useState(getData?.shopCategory[0] ?? null);
   const [phone, setPhone] = useState(getData?.phone ?? null);
   const [address, setAddress] = useState(getData?.address ?? null);
   const dispath = useDispatch();
@@ -37,6 +44,7 @@ const ShopProfileScreen = () => {
   const [avatar, setAvatar] = useState(getData?.images[0] ?? null); //getData?.image[0]
   const [showPicker, setshowPicker] = useState(false); //bật/tắt DateTimePicker
   const [isSheetOpen, setIsSheetOpen] = useState(false); //quản lí state khi nhấn vào avatar để chọn ảnh
+  const [CateOpen, setCateOpen] = useState(false); //quản lí state khi nhấn vào avatar để chọn ảnh
   const [correct, setCorrect] = useState(true); //quản lí state khi đúng mới cho cập nhật(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   const [isclick, setisClick] = useState(false); //đã click vào button cập nhật hay chưa
 
@@ -45,20 +53,27 @@ const ShopProfileScreen = () => {
     const body = {
       name: name,
       phone: phone,
-      category: category,
-      //birthDate: new Date(birthDate),
-      vehicleBrand: vehicleBrand,
-      vehiclePlate: vehiclePlate,
-      status: 'active',
-      image: await uploadImageToCloudinary(imagePath),
+      //category: category,
+      images: [avatar],
+      address: address,
     };
-    dispath(UpdateShipper({id: user._id, data: body}));
+    dispath(UpdateShop({id: user._id, data: body}));
   };
 
-  //check phone
-  const checkPhone = data => {
-    return validatePhone(data) ? null : 'Số điện thoại không hợp lệ';
-  };
+  //thông báo cập nhật
+  useEffect(() => {
+    if (UpdateShopStatus == 'succeeded' && isclick) {
+      ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
+      setIsLoading(false);
+      dispath(GetShop(user._id));
+      setisClick(false);
+      navigation.goBack();
+    } else if (UpdateShopStatus == 'failed' && isclick) {
+      ToastAndroid.show('Cập nhật thất bại', ToastAndroid.SHORT);
+      setIsLoading(false);
+      setisClick(false);
+    }
+  }, [UpdateShopStatus]);
 
   //quản lí state correct(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   useEffect(() => {
@@ -66,19 +81,10 @@ const ShopProfileScreen = () => {
     !name || !phone || checkphone ? setCorrect(false) : setCorrect(true);
   }, [name, phone]);
 
-  //thông báo cập nhật
-  useEffect(() => {
-    if (updateStatus == 'succeeded' && isclick) {
-      ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
-      setIsLoading(false);
-      dispath(GetShipper(user._id));
-      setisClick(false);
-    } else if (updateStatus == 'failed' && isclick) {
-      ToastAndroid.show('Cập nhật thất bại', ToastAndroid.SHORT);
-      setIsLoading(false);
-      setisClick(false);
-    }
-  }, [updateStatus]);
+  //check phone
+  const checkPhone = data => {
+    return validatePhone(data) ? null : 'Số điện thoại không hợp lệ';
+  };
 
   //hàm xử lí khi DateTimePicker đc bật
   const handleDateChange = (event, selectedTime) => {
@@ -93,6 +99,23 @@ const ShopProfileScreen = () => {
     setshowPicker(false);
   };
 
+  useEffect(() => {
+    dispath(GetShopCategories());
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // Logic cập nhật khi quay trở lại màn hình
+      if (datacate) {
+        setCategory({
+          _id: datacate.shopCategory_id,
+          shopCategory_name: datacate.name,
+        });
+      }
+    });
+    return unsubscribe; // Cleanup khi component unmount
+  }, [navigation, datacate]);
+
   //nhận ảnh khi thực hiện chụp or chọn ảnh từ thư viện(chưa đưa vào api)
   useEffect(() => {
     if (imagePath) {
@@ -104,7 +127,9 @@ const ShopProfileScreen = () => {
   return (
     <View style={styles.container}>
       <HeaderComponent text={'Thông nhà hàng'} isback={true} />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{flexGrow: 1, justifyContent: 'space-between'}}>
         {/*avatar*/}
         <View style={{alignItems: 'center'}}>
           <TouchableOpacity
@@ -147,26 +172,29 @@ const ShopProfileScreen = () => {
           error={name ? null : 'Đây là thông tin bắt buộc'}
         />
         <TextInputComponent
-          text={'LOẠI HÌNH BÁN HÀNG'}
-          value={category}
-          onChangeText={text => setEmail(text)}
-          error={category ? null : 'Đây là thông tin bắt buộc'}
-        />
-        <TextInputComponent
-          text={'ĐỊA CHỈ'}
-          value={address}
-          onChangeText={text => setPhone(text)}
-          error={address ? null : 'Đây là thông tin bắt buộc'}
-        />
-        <TextInputComponent
           text={'HOTLINE'}
           value={phone}
           onChangeText={text => setPhone(text)}
           error={phone ? checkPhone(phone) : 'Đây là thông tin bắt buộc'}
         />
+        <TextComponent text={'LOẠI HÌNH BÁN HÀNG'} />
+        <TouchableOpacity
+          style={styles.input}
+          onPress={() => {
+            navigation.navigate('ShopCategories');
+          }}>
+          <TextComponent text={category.shopCategory_name} />
+        </TouchableOpacity>
+
+        <TextInputComponent
+          text={'ĐỊA CHỈ'}
+          value={address}
+          onChangeText={text => setAddress(text)}
+          error={address ? null : 'Đây là thông tin bắt buộc'}
+        />
 
         {/*Mở cửa và đóng cửa*/}
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        {/*        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <View style={{width: '45%'}}>
             <TextComponent text={'MỞ CỬA'} fontFamily={fontFamilies.bold} />
             <TouchableOpacity
@@ -208,9 +236,10 @@ const ShopProfileScreen = () => {
               onChange={handleDateChange}
             />
           )}
-        </View>
+        </View> */}
         {/**/}
 
+        <View style={{flex: 1}} />
         {/*Button cập nhật*/}
         <View style={styles.footer}>
           <ButtonComponent
@@ -318,6 +347,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footer: {
-    marginTop: '10%',
+    marginTop: 'auto', // Đảm bảo footer luôn ở dưới cùng
+    marginBottom: 'auto',
+  },
+  input: {
+    marginTop: 10,
+    backgroundColor: appColor.white,
+    borderWidth: 1,
+    marginBottom: 10,
+    borderRadius: 10,
+    padding: 18,
+    height: 58,
+    color: appColor.text,
+    borderColor: appColor.lightgray,
   },
 });

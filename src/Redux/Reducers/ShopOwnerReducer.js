@@ -52,6 +52,17 @@ export const GetShopCategories = createAsyncThunk(
   },
 );
 
+export const ChangePassword = createAsyncThunk(
+  'changePassword',
+  async ({data}) => {
+    const response = await AxiosInstance().post(
+      `shopOwner/change-password`,
+      data,
+    );
+    return response.data;
+  },
+);
+
 export const UpdateShop = createAsyncThunk('updateshop', async ({id, data}) => {
   const response = await AxiosInstance().put(`shopOwner/update/${id}`, data);
   return response.data;
@@ -76,6 +87,8 @@ export const ShopSlice = createSlice({
     GetShopCategoriesStatus: 'ide',
     UpdateShopData: {},
     UpdateShopStatus: 'ide',
+    ChangePasswordData: {},
+    ChangePasswordStatus: 'ide',
   },
   reducers: {},
   extraReducers: builder => {
@@ -175,6 +188,18 @@ export const ShopSlice = createSlice({
       .addCase(UpdateShop.rejected, (state, action) => {
         state.UpdateShopStatus = 'failed';
         console.error('Lỗi cập nhật: ' + action.error.message);
+      })
+      //thay đổi mk
+      .addCase(ChangePassword.pending, (state, action) => {
+        state.ChangePasswordStatus = 'loading';
+      })
+      .addCase(ChangePassword.fulfilled, (state, action) => {
+        state.ChangePasswordStatus = 'succeeded';
+        state.ChangePasswordData = action.payload;
+      })
+      .addCase(ChangePassword.rejected, (state, action) => {
+        state.ChangePasswordStatus = 'failed';
+        console.error('Lỗi doi mk: ' + action.error.message);
       });
   },
 });

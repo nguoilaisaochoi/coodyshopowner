@@ -30,6 +30,7 @@ const HomeScreen = () => {
   const [confirmedOrders, setConfirmedOrders] = useState({});
   const [orderIdToCancel, setOrderIdToCancel] = useState(null);
   const dispatch = useDispatch();
+  //
   useEffect(() => {
     connectSocket();
     callAPI();
@@ -49,6 +50,7 @@ const HomeScreen = () => {
       disconnectSocket();
     };
   }, []);
+  //
   const callAPI = () => {
     dispatch(GetShop(user._id));
     dispatch(GetProduct(user._id));
@@ -98,7 +100,6 @@ const HomeScreen = () => {
       </View>
     );
   };
-  console.log(confirmedOrders);
   //list đơn hàng
   const renderItem = ({item}) => {
     const {_id, items, totalPrice} = item;

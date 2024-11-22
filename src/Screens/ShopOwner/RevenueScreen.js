@@ -8,13 +8,46 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import TextComponent from '../../components/TextComponent';
 import Info4txtComponent from './ComposenentShopOwner/Info4txtComponent';
 import {formatCurrency} from '../../utils/Validators';
+import {useDispatch, useSelector} from 'react-redux';
+import {GetRevenue} from '../../Redux/Reducers/ShopOwnerReducer';
 
 const RevenueScreen = () => {
+  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
+  const {getRevenueStatus, getRevenueData} = useSelector(
+    state => state.shopowner,
+  );
   const [value, setValue] = useState(date[0].value); //select dropdown
-  const [Data, setData] = useState(data); //data mẫu
+  const [Data, setData] = useState(null); //data mẫu
+  const dispath = useDispatch();
+  const [refreshing, setRefreshing] = useState(false);
 
-  const renderItem = ({item}) => {
-    const {paymentMethod, gap, shippingfee, orderDate, user, shipper} = item;
+  //call api
+  const fetchRevenue = () => {
+    setRefreshing(true);
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1);
+    const day = String(currentDate.getDate());
+    const formattedDate = `${year}/${month}/${day}`;
+    dispath(GetRevenue({id: user._id, data: formattedDate, date: value}));
+  };
+
+  useEffect(() => {
+    fetchRevenue();
+  }, [value]);
+
+  //status get rev
+  useEffect(() => {
+    if (getRevenueStatus === 'succeeded') {
+      setData(getRevenueData);
+    }
+    if (refreshing) {
+      setRefreshing(false); // Kết thúc làm mới
+    }
+  }, [getRevenueStatus]);
+
+  //ngay : (gio)
+  const formattedDate = orderDate => {
     const date = new Date(orderDate);
     const timeString = date.toLocaleTimeString('vi-VN', {
       hour: 'numeric',
@@ -22,16 +55,23 @@ const RevenueScreen = () => {
       hour12: false,
     });
     const dateString = date.toLocaleDateString();
-    const formattedDate = `${dateString}, (${timeString}) `;
+    return `${dateString}, (${timeString}) `;
+  };
+  //
+  const renderItem = ({item}) => {
+    const {user, shipper, paymentMethod, gap, totalPrice, orderDate, status} =
+      item;
     return (
       <View style={[styles.boxed, {justifyContent: 'center', margin: '3.7%'}]}>
         <View style={{paddingLeft: '2%'}}>
           <Info4txtComponent
-            text={formattedDate}
+            text={formattedDate(orderDate)}
             color1={appColor.subText}
             color2={appColor.primary}
             fontsize={14}
-            price={'Thành công'}
+            price={
+              status == 'Đơn hàng đã được giao hoàn tất' ? 'Thành công' : status
+            }
             fontFamily2={fontFamilies.semiBold}
           />
         </View>
@@ -44,7 +84,7 @@ const RevenueScreen = () => {
         />
         <Info4txtComponent
           text={' Tài xế'}
-          price={shipper.name}
+          price={shipper?.name ?? 'Không'}
           fontsize={20}
           fontFamily1={fontFamilies.semiBold}
           fontFamily2={fontFamilies.semiBold}
@@ -64,7 +104,7 @@ const RevenueScreen = () => {
         <Info4txtComponent
           text={' Thu nhập'}
           color1={appColor.subText}
-          price={formatCurrency(shippingfee)}
+          price={formatCurrency(totalPrice)}
           fontsize={14}
         />
       </View>
@@ -103,7 +143,7 @@ const RevenueScreen = () => {
               source={require('../../assets/images/shopowner/wallet.png')}
             />
             <TextComponent
-              text={new Date(Data.startDate).toLocaleDateString('vi-VN')}
+              text={new Date().toLocaleDateString('vi-VN')}
               fontsize={value != 'day' ? 16 : 18}
               fontFamily={fontFamilies.bold}
             />
@@ -119,25 +159,25 @@ const RevenueScreen = () => {
             color1={appColor.subText}
             fontsize={14}
             text={'Số đơn:'}
-            price={Data.totalOrders}
+            price={Data?.totalOrders ?? '0'}
           />
           <Info4txtComponent
             color1={appColor.subText}
             fontsize={14}
             text={'Tổng thu nhập:'}
-            price={formatCurrency(Data.totalRevenue)}
+            price={formatCurrency(Data?.totalRevenue ?? 0)}
           />
           <Info4txtComponent
             color1={appColor.subText}
             fontsize={14}
             text={'Nhận tiền mặt:'}
-            price={formatCurrency(Data.cashTotal)}
+            price={formatCurrency(Data?.cashTotal ?? 0)}
           />
           <Info4txtComponent
             color1={appColor.subText}
             fontsize={14}
             text={'Nhận vào app:'}
-            price={formatCurrency(Data.appTotal)}
+            price={formatCurrency(Data?.appTotal ?? 0)}
           />
         </View>
       </View>
@@ -156,10 +196,12 @@ const RevenueScreen = () => {
       {/*danh sách đơn hàng và hiển thị thông  không có đơn hàng khi trống*/}
       {Data ? (
         <FlatList
-          data={Data}
+          data={Data.orders}
           renderItem={renderItem}
           keyExtractor={item => item._id}
           contentContainerStyle={styles.faltlist}
+          refreshing={refreshing} // Trạng thái làm mới
+          onRefresh={fetchRevenue} // Hàm gọi lại để làm mới
         />
       ) : (
         <View style={styles.nondelivery}>

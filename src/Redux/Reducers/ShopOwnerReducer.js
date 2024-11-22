@@ -38,7 +38,7 @@ export const GetRevenue = createAsyncThunk(
   'revenue',
   async ({id, data, date}) => {
     const response = await AxiosInstance().get(
-      `shipper/${id}/revenue/?date=${data}&filter=${date}`,
+      `shopOwner/${id}/revenue/?date=${data}&filter=${date}`,
     );
     return response.data;
   },

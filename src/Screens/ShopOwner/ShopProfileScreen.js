@@ -183,7 +183,7 @@ const ShopProfileScreen = ({navigation, route}) => {
           onPress={() => {
             navigation.navigate('ShopCategories');
           }}>
-          <TextComponent text={category.shopCategory_name} />
+          <TextComponent text={category.shopCategory_name} fontsize={14} />
         </TouchableOpacity>
 
         <TextInputComponent

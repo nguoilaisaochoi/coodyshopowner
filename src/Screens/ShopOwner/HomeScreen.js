@@ -98,13 +98,14 @@ const HomeScreen = () => {
       </View>
     );
   };
-
+  console.log(confirmedOrders);
   //list đơn hàng
-  const renderItem = ({item, index}) => {
+  const renderItem = ({item}) => {
     const {_id, items, totalPrice} = item;
     //gán giá trị cho biến isConfirmed dựa trên
     //key _id có tồn tại trong đối tượng confirmedOrders hay không.
     const isConfirmed = confirmedOrders[_id];
+
     return (
       <View style={styles.content}>
         <View style={[{backgroundColor: appColor.primary}, styles.iditem]}>
@@ -140,7 +141,7 @@ const HomeScreen = () => {
                   setConfirmedOrders({...confirmedOrders, [_id]: true});
                 }}>
                 <TextComponent
-                  text={'Đã chuẩn bị món'}
+                  text={'Xác nhận'}
                   fontsize={12}
                   color={appColor.white}
                   fontFamily={fontFamilies.semiBold}

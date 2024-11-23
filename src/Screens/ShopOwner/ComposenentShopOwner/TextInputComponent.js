@@ -36,6 +36,7 @@ const TextInputComponent = ({
             placeholder={placeholder}
             onChangeText={onChangeText}
             secureTextEntry={showpassword}
+            color={appColor.text}
             style={{width: '85%'}}
           />
           <TouchableOpacity
@@ -62,6 +63,7 @@ const TextInputComponent = ({
           ]}
           value={value}
           placeholder={placeholder}
+          onChangeText={onChangeText}
         />
       )}
       {error && (

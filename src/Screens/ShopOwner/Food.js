@@ -1,7 +1,7 @@
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {appColor} from '../../constants/appColor';
-import TextComponent from './ComposenentShopOwner/TextComponent';
+
 import {fontFamilies} from '../../constants/fontFamilies';
 import Animated, {
   useAnimatedStyle,
@@ -11,6 +11,7 @@ import Animated, {
 import {appInfor} from '../../constants/appInfor';
 import FoodList from './FoodList';
 import FoodGroup from './FoodGroup';
+import TextComponent from '../../components/TextComponent';
 
 const Food = () => {
   const [selected, setSelected] = useState('Món'); //selected món & nhóm món ăn

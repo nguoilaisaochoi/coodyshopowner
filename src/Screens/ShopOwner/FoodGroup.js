@@ -8,9 +8,10 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {appColor} from '../../constants/appColor';
-import TextComponent from './ComposenentShopOwner/TextComponent';
+
 import {useNavigation} from '@react-navigation/native';
 import { useSelector } from 'react-redux';
+import TextComponent from '../../components/TextComponent';
 
 const FoodGroup = () => {
   const [Group, setGroup] = useState(null);

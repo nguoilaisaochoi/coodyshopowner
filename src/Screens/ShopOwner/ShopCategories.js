@@ -1,49 +1,79 @@
 import {
   View,
-  Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {appColor} from '../../constants/appColor';
 import HeaderComponent from '../../components/HeaderComponent';
-import {useSelector} from 'react-redux';
+import LineComponent from '../../components/LineComponent';
+import MapAPI from '../../core/apiMap/MapAPI';
+
+import SpaceComponent from '../../components/SpaceComponent';
+import TextInputComponent from './ComposenentShopOwner/TextInputComponent';
+import TextComponent from '../../components/TextComponent';
 
 const ShopCategories = ({navigation}) => {
-  const {GetShopCategoriesData} = useSelector(state => state.shopowner);
-  const handleGoBack = datacate => {
-    navigation.navigate('ShopProfile', {datacate}); // Quay lại màn hình trước
+  const [address, setAddress] = useState('');
+  const [isShowAddress, setIsShowAddress] = useState(false);
+  const [description, setDescription] = useState([]);
+
+  const updateSearch = text => {
+    setAddress(text);
+    setIsShowAddress(true);
   };
+
   const renderItem = ({item}) => {
-    const {_id, image, name} = item;
     return (
       <TouchableOpacity
-        style={styles.btn}
-        activeOpacity={0.5}
-        onPress={() => {
-          handleGoBack(item);
-        }}>
-        <Image
-          style={{width: 50, height: 50}}
-          source={{
-            uri: image,
-          }}
-        />
-        <Text>{name}</Text>
+        style={{paddingTop: '5%', paddingBottom: '5%'}}
+        onPress={() => handleAddressSelect(item)}>
+        <TextComponent text={item.description} />
+        <SpaceComponent height={10} />
+        <LineComponent />
       </TouchableOpacity>
     );
   };
+
+  const getPlacesAutocomplete = async () => {
+    let autoComplete = await MapAPI.getPlacesAutocomplete({
+      search: encodeURIComponent(address),
+    });
+    setDescription(autoComplete.predictions);
+  };
+
+  const handleAddressSelect = item => {
+    setAddress(item.description);
+    setIsShowAddress(false);
+    navigation.navigate('ShopProfile', {description: item.description});
+  };
+
+  useEffect(() => {
+    if (address.length >= 1) {
+      getPlacesAutocomplete();
+    } else {
+      setIsShowAddress(false);
+    }
+  }, [address]);
+
   return (
     <View style={styles.container}>
-      <HeaderComponent text={'Loại bán hàng'} isback={true} />
+      <HeaderComponent text={'Địa chỉ'} isback={true} />
       <View style={styles.body}>
-        <FlatList
-          data={GetShopCategoriesData}
-          renderItem={renderItem}
-          keyExtractor={items => items._id}
+        <TextInputComponent
+          text={'Nhập địa chỉ'}
+          value={address}
+          placeholder="Tìm địa chỉ..."
+          onChangeText={text => updateSearch(text)}
         />
+        {isShowAddress && (
+          <FlatList
+            scrollEnabled={false}
+            data={description}
+            renderItem={renderItem}
+          />
+        )}
       </View>
     </View>
   );

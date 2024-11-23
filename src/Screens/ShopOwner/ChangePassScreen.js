@@ -8,7 +8,8 @@ import ButtonComponent from '../../components/ButtonComponent';
 import {ChangePassword} from '../../Redux/Reducers/ShopOwnerReducer';
 import {logout} from '../../Redux/Reducers/LoginSlice';
 import LoadingModal from '../../modal/LoadingModal';
-import TextComponent from './ComposenentShopOwner/TextComponent';
+import TextComponent from '../../components/TextComponent';
+
 
 const ChangePassScreen = () => {
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
@@ -17,6 +18,7 @@ const ChangePassScreen = () => {
   const [newpass, setNewpass] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
+  
   const changepass = () => {
     const body = {
       email: user.email,

@@ -11,7 +11,6 @@ const TextComponent = ({ text, color, fontsize, fontFamily, styles, textAlign, n
             fontFamily: fontFamily ?? fontFamilies.medium,
             textAlign: textAlign ?? 'left',
             width: width ?? 'auto'
-
         }, styles]}
             numberOfLines={numberOfLines}
             ellipsizeMode={ellipsizeMode}

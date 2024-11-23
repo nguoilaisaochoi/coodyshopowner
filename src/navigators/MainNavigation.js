@@ -9,8 +9,6 @@ import HomeScreen from '../Screens/ShopOwner/HomeScreen';
 import RevenueScreen from '../Screens/ShopOwner/RevenueScreen';
 import Account from '../Screens/ShopOwner/Account';
 import ProfileScreen from '../Screens/ShopOwner/ProfileScreen';
-
-import VerifyShipper from '../Screens/ShopOwner/VerifyShipper';
 import ChangePassScreen from '../Screens/ShopOwner/ChangePassScreen';
 import Food from '../Screens/ShopOwner/Food';
 import EditFood from '../Screens/ShopOwner/EditFood';
@@ -25,7 +23,6 @@ const MainNavigation = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="Tab" component={TabNavigation} />
-      <Stack.Screen name="VerifyShipper" component={VerifyShipper} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="ChangePass" component={ChangePassScreen} />
       <Stack.Screen name="Food" component={Food} />

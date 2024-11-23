@@ -9,11 +9,12 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {appColor} from '../../constants/appColor';
-import TextComponent from './ComposenentShopOwner/TextComponent';
+
 import {fontFamilies} from '../../constants/fontFamilies';
 import {formatCurrency} from '../../utils/Validators';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
+import TextComponent from '../../components/TextComponent';
 
 const FoodList = () => {
   const navigation = useNavigation();

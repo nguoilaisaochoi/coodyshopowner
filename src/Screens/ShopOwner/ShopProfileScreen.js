@@ -25,14 +25,17 @@ import {
 import LoadingModal from '../../modal/LoadingModal';
 
 import SelectImage from './ComposenentShopOwner/SelectImage';
+import {MultiSelect} from 'react-native-element-dropdown';
+import {Trash} from 'iconsax-react-native';
+import MapAPI from '../../core/apiMap/MapAPI';
 
 const ShopProfileScreen = ({navigation, route}) => {
-  const {datacate} = route.params || {};
+  const {description} = route.params || {};
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const {updateStatus, getData, GetShopCategoriesData, UpdateShopStatus} =
     useSelector(state => state.shopowner);
   const [name, setName] = useState(getData?.name ?? null);
-  const [category, setCategory] = useState(getData?.shopCategory[0] ?? null);
+  const [category, setCategory] = useState(GetShopCategoriesData ?? null);
   const [phone, setPhone] = useState(getData?.phone ?? null);
   const [address, setAddress] = useState(getData?.address ?? null);
   const dispath = useDispatch();
@@ -44,9 +47,11 @@ const ShopProfileScreen = ({navigation, route}) => {
   const [avatar, setAvatar] = useState(getData?.images[0] ?? null); //getData?.image[0]
   const [showPicker, setshowPicker] = useState(false); //bật/tắt DateTimePicker
   const [isSheetOpen, setIsSheetOpen] = useState(false); //quản lí state khi nhấn vào avatar để chọn ảnh
-  const [CateOpen, setCateOpen] = useState(false); //quản lí state khi nhấn vào avatar để chọn ảnh
   const [correct, setCorrect] = useState(true); //quản lí state khi đúng mới cho cập nhật(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   const [isclick, setisClick] = useState(false); //đã click vào button cập nhật hay chưa
+  const [mycategory, setMyCategory] = useState([]);
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
 
   //cập nhật shipper lên api(tham khảo)
   const update = async () => {
@@ -75,11 +80,14 @@ const ShopProfileScreen = ({navigation, route}) => {
     }
   }, [UpdateShopStatus]);
 
+  console.log(mycategory);
   //quản lí state correct(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   useEffect(() => {
     const checkphone = checkPhone(phone);
-    !name || !phone || checkphone ? setCorrect(false) : setCorrect(true);
-  }, [name, phone]);
+    !name || !phone || checkphone || mycategory.length == 0
+      ? setCorrect(false)
+      : setCorrect(true);
+  }, [name, phone, mycategory]);
 
   //check phone
   const checkPhone = data => {
@@ -100,21 +108,21 @@ const ShopProfileScreen = ({navigation, route}) => {
   };
 
   useEffect(() => {
-    dispath(GetShopCategories());
+    const idbcategory = getData.shopCategory.map(item => {
+      return item.shopCategory_id;
+    });
+    setMyCategory(idbcategory);
   }, []);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      // Logic cập nhật khi quay trở lại màn hình
-      if (datacate) {
-        setCategory({
-          _id: datacate.shopCategory_id,
-          shopCategory_name: datacate.name,
-        });
+      if (description) {
+        setAddress(description);
+        getGeocoding();
       }
     });
-    return unsubscribe; // Cleanup khi component unmount
-  }, [navigation, datacate]);
+    return unsubscribe;
+  }, [navigation, description]);
 
   //nhận ảnh khi thực hiện chụp or chọn ảnh từ thư viện(chưa đưa vào api)
   useEffect(() => {
@@ -122,6 +130,22 @@ const ShopProfileScreen = ({navigation, route}) => {
       setAvatar(imagePath.uri);
     }
   }, [imagePath]);
+
+  //lay toa do
+  const getGeocoding = async () => {
+    try {
+      if (address) {
+        let geocoding = await MapAPI.getForwardGeocoding({
+          description: encodeURIComponent(address),
+        });
+        // console.log('geocoding', geocoding.results[0].formatted_address);
+        setLatitude(geocoding.results[0].geometry.location.lat);
+        setLongitude(geocoding.results[0].geometry.location.lng);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
 
   //
   return (
@@ -178,23 +202,52 @@ const ShopProfileScreen = ({navigation, route}) => {
           error={phone ? checkPhone(phone) : 'Đây là thông tin bắt buộc'}
         />
         <TextComponent text={'LOẠI HÌNH BÁN HÀNG'} />
-        <TouchableOpacity
+        <MultiSelect
           style={styles.input}
+          data={category}
+          labelField="name"
+          valueField="_id"
+          value={mycategory ?? 'trống'}
+          selectedTextStyle={{color: appColor.text}}
+          itemTextStyle={{color: appColor.text}}
+          placeholderStyle={{color: appColor.subText}}
+          placeholder={'Chọn loại bán hàng...'}
+          onChange={item => {
+            setMyCategory(item);
+          }}
+          renderSelectedItem={(item, unSelect) => (
+            <TouchableOpacity
+              onPress={() => unSelect && unSelect(item)}
+              activeOpacity={0.8}>
+              <View style={styles.selectedStyle}>
+                <TextComponent
+                  styles={styles.textSelectedStyle}
+                  text={item.name}
+                  fontsize={14}
+                />
+                <Trash color="black" size={17} />
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+        <View style={{marginTop: '3%'}} />
+
+        <TextComponent text={'ĐỊA CHỈ'} fontFamily={fontFamilies.bold} />
+        <TouchableOpacity
+          style={[styles.input, {minHeight: 50}]}
           onPress={() => {
             navigation.navigate('ShopCategories');
           }}>
-          <TextComponent text={category.shopCategory_name} fontsize={14} />
+          <TextComponent
+            text={address}
+            fontsize={14}
+            numberOfLines={1}
+            ellipsizeMode={'tail'}
+          />
         </TouchableOpacity>
 
-        <TextInputComponent
-          text={'ĐỊA CHỈ'}
-          value={address}
-          onChangeText={text => setAddress(text)}
-          error={address ? null : 'Đây là thông tin bắt buộc'}
-        />
-
         {/*Mở cửa và đóng cửa*/}
-        {/*        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <View style={{width: '45%'}}>
             <TextComponent text={'MỞ CỬA'} fontFamily={fontFamilies.bold} />
             <TouchableOpacity
@@ -208,7 +261,6 @@ const ShopProfileScreen = ({navigation, route}) => {
                 fontFamily={fontFamilies.regular}
                 fontsize={14}
                 text={open ? open.toLocaleTimeString() : '--:--'}
-                styles={{opacity: 0.5}}
               />
             </TouchableOpacity>
           </View>
@@ -225,7 +277,6 @@ const ShopProfileScreen = ({navigation, route}) => {
                 fontFamily={fontFamilies.regular}
                 fontsize={14}
                 text={close ? close.toLocaleTimeString() : '--:--'}
-                styles={{opacity: 0.5}}
               />
             </TouchableOpacity>
           </View>
@@ -236,7 +287,7 @@ const ShopProfileScreen = ({navigation, route}) => {
               onChange={handleDateChange}
             />
           )}
-        </View> */}
+        </View>
         {/**/}
 
         <View style={{flex: 1}} />
@@ -360,5 +411,27 @@ const styles = StyleSheet.create({
     height: 58,
     color: appColor.text,
     borderColor: appColor.lightgray,
+  },
+  selectedStyle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 14,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    marginTop: '3%',
+    marginRight: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  textSelectedStyle: {
+    marginRight: 5,
   },
 });

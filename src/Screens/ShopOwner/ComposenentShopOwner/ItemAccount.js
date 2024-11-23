@@ -3,7 +3,7 @@ import React from 'react';
 import TextComponent from '../../../components/TextComponent';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import {appColor} from '../../../constants/appColor';
-import {useNavigation} from '@react-navigation/native';
+
 
 //../../assets/images/shipper/user.png
 const ItemAccount = ({text, icon, screen}) => {

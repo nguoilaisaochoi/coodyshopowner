@@ -1,21 +1,21 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import React from 'react';
 import TextComponent from './TextComponent';
-import { appInfor } from '../constants/appInfor';
-import { appColor } from '../constants/appColor';
-import { fontFamilies } from '../constants/fontFamilies';
-import { useNavigation } from '@react-navigation/native';
+import {appInfor} from '../constants/appInfor';
+import {appColor} from '../constants/appColor';
+import {fontFamilies} from '../constants/fontFamilies';
+import {useNavigation} from '@react-navigation/native';
 
 /*
 isback để hiện mũi tên quay lại(back): isback={true}
 text để điền tên cho màn hinh: text={'name'}
 <Header  isback={true} text={'Chỉnh Sửa Địa Chỉ'} />
 */
-const HeaderComponent = ({ text, isback }) => {
+const HeaderComponent = ({text, isback}) => {
   const navigation = useNavigation(); // Khai báo hook useNavigation
 
   const Back = () => {
-    navigation.goBack(); // Sử dụng phương thức goBack để quay về trang trước
+    navigation.goBack();
   };
   return (
     <View style={styles.header}>
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     // height: appInfor.sizes.height * 0.1,
     // padding: appInfor.sizes.width * 0.05,
     // paddingTop: appInfor.sizes.height * 0.08,
-    paddingBottom: 30
+    paddingBottom: 30,
   },
   title: {
     position: 'absolute',

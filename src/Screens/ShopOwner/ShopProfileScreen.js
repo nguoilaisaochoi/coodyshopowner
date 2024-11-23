@@ -6,7 +6,7 @@ import {
   ScrollView,
   ToastAndroid,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import HeaderComponent from '../../components/HeaderComponent';
 import {appColor} from '../../constants/appColor';
@@ -17,15 +17,21 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useDispatch, useSelector} from 'react-redux';
 import {validatePhone} from '../../utils/Validators';
-import {GetShipper, UpdateShipper} from '../../Redux/Reducers/ShopOwnerReducer';
+import {GetShop, UpdateShop} from '../../Redux/Reducers/ShopOwnerReducer';
 import LoadingModal from '../../modal/LoadingModal';
-import {uploadImageToCloudinary} from './ComposenentShopOwner/UploadImage';
-import SelectImage from './ComposenentShopOwner/SelectImage';
 
-const ShopProfileScreen = () => {
-  const {updateStatus, getData} = useSelector(state => state.shopowner); //demo-- có thể tinh chỉnh lại
+import SelectImage from './ComposenentShopOwner/SelectImage';
+import {MultiSelect} from 'react-native-element-dropdown';
+import {Trash} from 'iconsax-react-native';
+import MapAPI from '../../core/apiMap/MapAPI';
+
+const ShopProfileScreen = ({navigation, route}) => {
+  const {description} = route.params || {};
+  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
+  const {updateStatus, getData, GetShopCategoriesData, UpdateShopStatus} =
+    useSelector(state => state.shopowner);
   const [name, setName] = useState(getData?.name ?? null);
-  const [category, setCategory] = useState(getData?.category ?? null);
+  const [category, setCategory] = useState(GetShopCategoriesData ?? null);
   const [phone, setPhone] = useState(getData?.phone ?? null);
   const [address, setAddress] = useState(getData?.address ?? null);
   const dispath = useDispatch();
@@ -39,46 +45,55 @@ const ShopProfileScreen = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false); //quản lí state khi nhấn vào avatar để chọn ảnh
   const [correct, setCorrect] = useState(true); //quản lí state khi đúng mới cho cập nhật(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   const [isclick, setisClick] = useState(false); //đã click vào button cập nhật hay chưa
+  const [mycategory, setMyCategory] = useState([]);
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
 
   //cập nhật shipper lên api(tham khảo)
   const update = async () => {
     const body = {
       name: name,
       phone: phone,
-      category: category,
-      //birthDate: new Date(birthDate),
-      vehicleBrand: vehicleBrand,
-      vehiclePlate: vehiclePlate,
-      status: 'active',
-      image: await uploadImageToCloudinary(imagePath),
+      //category: category,
+      images: [avatar],
+      address: address,
     };
-    dispath(UpdateShipper({id: user._id, data: body}));
+    dispath(UpdateShop({id: user._id, data: body}));
   };
+
+  //thông báo cập nhật
+  useEffect(() => {
+    if (UpdateShopStatus == 'succeeded' && isclick) {
+      ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
+      setIsLoading(false);
+      dispath(GetShop(user._id));
+      setisClick(false);
+      navigation.goBack();
+    } else if (UpdateShopStatus == 'failed' && isclick) {
+      ToastAndroid.show('Cập nhật thất bại', ToastAndroid.SHORT);
+      setIsLoading(false);
+      setisClick(false);
+    }
+  }, [UpdateShopStatus]);
+
+  //quản lí state correct(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
+  useEffect(() => {
+    const checkphone = checkPhone(phone);
+    const date1 = new Date(open);
+    const date2 = new Date(close);
+    !name ||
+    !phone ||
+    checkphone ||
+    mycategory.length == 0 ||
+    (open && date1.getTime() >= date2.getTime())
+      ? setCorrect(false)
+      : setCorrect(true);
+  }, [name, phone, mycategory, open, close]);
 
   //check phone
   const checkPhone = data => {
     return validatePhone(data) ? null : 'Số điện thoại không hợp lệ';
   };
-
-  //quản lí state correct(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
-  useEffect(() => {
-    const checkphone = checkPhone(phone);
-    !name || !phone || checkphone ? setCorrect(false) : setCorrect(true);
-  }, [name, phone]);
-
-  //thông báo cập nhật
-  useEffect(() => {
-    if (updateStatus == 'succeeded' && isclick) {
-      ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
-      setIsLoading(false);
-      dispath(GetShipper(user._id));
-      setisClick(false);
-    } else if (updateStatus == 'failed' && isclick) {
-      ToastAndroid.show('Cập nhật thất bại', ToastAndroid.SHORT);
-      setIsLoading(false);
-      setisClick(false);
-    }
-  }, [updateStatus]);
 
   //hàm xử lí khi DateTimePicker đc bật
   const handleDateChange = (event, selectedTime) => {
@@ -93,6 +108,23 @@ const ShopProfileScreen = () => {
     setshowPicker(false);
   };
 
+  useEffect(() => {
+    const idbcategory = getData.shopCategory.map(item => {
+      return item.shopCategory_id;
+    });
+    setMyCategory(idbcategory);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (description) {
+        setAddress(description);
+        getGeocoding();
+      }
+    });
+    return unsubscribe;
+  }, [navigation, description]);
+
   //nhận ảnh khi thực hiện chụp or chọn ảnh từ thư viện(chưa đưa vào api)
   useEffect(() => {
     if (imagePath) {
@@ -100,11 +132,29 @@ const ShopProfileScreen = () => {
     }
   }, [imagePath]);
 
+  //lay toa do
+  const getGeocoding = async () => {
+    try {
+      if (address) {
+        let geocoding = await MapAPI.getForwardGeocoding({
+          description: encodeURIComponent(address),
+        });
+        // console.log('geocoding', geocoding.results[0].formatted_address);
+        setLatitude(geocoding.results[0].geometry.location.lat);
+        setLongitude(geocoding.results[0].geometry.location.lng);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
   //
   return (
     <View style={styles.container}>
       <HeaderComponent text={'Thông nhà hàng'} isback={true} />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{flexGrow: 1, justifyContent: 'space-between'}}>
         {/*avatar*/}
         <View style={{alignItems: 'center'}}>
           <TouchableOpacity
@@ -147,23 +197,55 @@ const ShopProfileScreen = () => {
           error={name ? null : 'Đây là thông tin bắt buộc'}
         />
         <TextInputComponent
-          text={'LOẠI HÌNH BÁN HÀNG'}
-          value={category}
-          onChangeText={text => setEmail(text)}
-          error={category ? null : 'Đây là thông tin bắt buộc'}
-        />
-        <TextInputComponent
-          text={'ĐỊA CHỈ'}
-          value={address}
-          onChangeText={text => setPhone(text)}
-          error={address ? null : 'Đây là thông tin bắt buộc'}
-        />
-        <TextInputComponent
           text={'HOTLINE'}
           value={phone}
           onChangeText={text => setPhone(text)}
           error={phone ? checkPhone(phone) : 'Đây là thông tin bắt buộc'}
         />
+        <TextComponent text={'LOẠI HÌNH BÁN HÀNG'} />
+        <MultiSelect
+          style={styles.input}
+          data={category}
+          labelField="name"
+          valueField="_id"
+          value={mycategory ?? 'trống'}
+          selectedTextStyle={{color: appColor.text}}
+          itemTextStyle={{color: appColor.text}}
+          placeholderStyle={{color: appColor.subText}}
+          placeholder={'Chọn loại bán hàng...'}
+          onChange={item => {
+            setMyCategory(item);
+          }}
+          renderSelectedItem={(item, unSelect) => (
+            <TouchableOpacity
+              onPress={() => unSelect && unSelect(item)}
+              activeOpacity={0.8}>
+              <View style={styles.selectedStyle}>
+                <TextComponent
+                  styles={styles.textSelectedStyle}
+                  text={item.name}
+                  fontsize={14}
+                />
+                <Trash color="black" size={17} />
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+        <View style={{marginTop: '3%'}} />
+
+        <TextComponent text={'ĐỊA CHỈ'} fontFamily={fontFamilies.bold} />
+        <TouchableOpacity
+          style={[styles.input, {minHeight: 50}]}
+          onPress={() => {
+            navigation.navigate('ShopCategories');
+          }}>
+          <TextComponent
+            text={address}
+            fontsize={14}
+            numberOfLines={1}
+            ellipsizeMode={'tail'}
+          />
+        </TouchableOpacity>
 
         {/*Mở cửa và đóng cửa*/}
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -180,7 +262,6 @@ const ShopProfileScreen = () => {
                 fontFamily={fontFamilies.regular}
                 fontsize={14}
                 text={open ? open.toLocaleTimeString() : '--:--'}
-                styles={{opacity: 0.5}}
               />
             </TouchableOpacity>
           </View>
@@ -197,7 +278,6 @@ const ShopProfileScreen = () => {
                 fontFamily={fontFamilies.regular}
                 fontsize={14}
                 text={close ? close.toLocaleTimeString() : '--:--'}
-                styles={{opacity: 0.5}}
               />
             </TouchableOpacity>
           </View>
@@ -211,6 +291,7 @@ const ShopProfileScreen = () => {
         </View>
         {/**/}
 
+        <View style={{flex: 1}} />
         {/*Button cập nhật*/}
         <View style={styles.footer}>
           <ButtonComponent
@@ -318,6 +399,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footer: {
-    marginTop: '10%',
+    marginTop: 'auto', // Đảm bảo footer luôn ở dưới cùng
+    marginBottom: 'auto',
+  },
+  input: {
+    marginTop: 10,
+    backgroundColor: appColor.white,
+    borderWidth: 1,
+    marginBottom: 10,
+    borderRadius: 10,
+    padding: 18,
+    height: 58,
+    color: appColor.text,
+    borderColor: appColor.lightgray,
+  },
+  selectedStyle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 14,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    marginTop: '3%',
+    marginRight: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  textSelectedStyle: {
+    marginRight: 5,
   },
 });

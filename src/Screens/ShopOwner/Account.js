@@ -5,8 +5,10 @@ import ItemAccount from './ComposenentShopOwner/ItemAccount';
 import {useNavigation} from '@react-navigation/native';
 import {logout} from '../../Redux/Reducers/LoginSlice';
 import {useDispatch, useSelector} from 'react-redux';
-import TextComponent from './ComposenentShopOwner/TextComponent';
+
 import {fontFamilies} from '../../constants/fontFamilies';
+import {GetShopCategories} from '../../Redux/Reducers/ShopOwnerReducer';
+import TextComponent from '../../components/TextComponent';
 
 const Account = () => {
   const navigation = useNavigation();
@@ -19,7 +21,9 @@ const Account = () => {
   const gotoScreen = screen => {
     navigation.navigate(screen);
   };
-
+  useEffect(() => {
+    dispatch(GetShopCategories());
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -28,14 +32,14 @@ const Account = () => {
             text={'Xin chào '}
             fontsize={23}
             color={appColor.white}
-            fontfamily={fontFamilies.semiBold}
+            fontFamily={fontFamilies.semiBold}
             styles={{opacity: 0.9}}
           />
           <TextComponent
             text={getData.name}
             fontsize={23}
             color={appColor.white}
-            fontfamily={fontFamilies.bold}
+            fontFamily={fontFamilies.bold}
           />
         </View>
         <View style={styles.imgitem}>
@@ -50,13 +54,13 @@ const Account = () => {
         </View>
       </View>
       <View style={styles.body}>
-        <ItemAccount
+        {/*        <ItemAccount
           screen={() => {
             gotoScreen('Profile');
           }}
           text={'Thông tin cá nhân của bạn'}
           icon={'user'}
-        />
+        /> */}
         <ItemAccount
           screen={() => {
             gotoScreen('ShopProfile');

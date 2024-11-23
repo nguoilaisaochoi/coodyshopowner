@@ -24,41 +24,49 @@ import {
 const HomeScreen = () => {
   const [Order, setOrder] = useState([]); //set,read api data đơn hàng
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
-  const {getData, getStatus} = useSelector(state => state.shopowner); //data&status getshipper
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
   const [value, setValue] = useState(null); //lưu lí do huỷ đơn
-  const IDshopowner = useState('671346345647791835ac3a3b');
+  //const IDshopowner = useState('671346345647791835ac3a3b');
+  const [confirmedOrders, setConfirmedOrders] = useState({});
+  const [orderIdToCancel, setOrderIdToCancel] = useState(null);
   const dispatch = useDispatch();
+  //
   useEffect(() => {
     connectSocket();
     callAPI();
     const socketInstance = getSocket();
-    socketInstance.emit('join_room', IDshopowner);
+    socketInstance.emit('join_room', user._id);
     const handleNewOrder = dataGot => {
       const newOrder = dataGot.order;
       setOrder(oldOrders => [...oldOrders, newOrder]);
     };
     socketInstance.on('new_order_created', handleNewOrder);
+    socketInstance.on('order_completed', data => {
+      setOrder(prevOrders =>
+        prevOrders.filter(order => order._id !== data.orderId),
+      );
+    });
     return () => {
       disconnectSocket();
     };
   }, []);
+  //
   const callAPI = () => {
     dispatch(GetShop(user._id));
     dispatch(GetProduct(user._id));
     dispatch(GetProductCategories(user._id));
   };
   //log
-  useEffect(() => {
-    if (getStatus == 'succeeded') {
-      console.log(getData);
-    }
-  }, [getStatus]);
-
   const confirmOrder = orderId => {
     const socketInstance = getSocket();
     socketInstance.emit('confirm_order', orderId);
+    //setOrder(prevOrders => prevOrders.filter(order => order._id !== orderId));
+  };
+  const cancelOrder = orderId => {
+    const socketInstance = getSocket();
+    socketInstance.emit('cancel_order', orderId);
     setOrder(prevOrders => prevOrders.filter(order => order._id !== orderId));
+    setOrderIdToCancel(null);
   };
   //danh sách các sản phẩm chi tiết (số lượng thông tin sản phẩm của đơn)
   const renderItemdetail = ({item}) => {
@@ -92,10 +100,13 @@ const HomeScreen = () => {
       </View>
     );
   };
-
   //list đơn hàng
-  const renderItem = ({item, index}) => {
+  const renderItem = ({item}) => {
     const {_id, items, totalPrice} = item;
+    //gán giá trị cho biến isConfirmed dựa trên
+    //key _id có tồn tại trong đối tượng confirmedOrders hay không.
+    const isConfirmed = confirmedOrders[_id];
+
     return (
       <View style={styles.content}>
         <View style={[{backgroundColor: appColor.primary}, styles.iditem]}>
@@ -107,33 +118,39 @@ const HomeScreen = () => {
           />
         </View>
         <View style={styles.itemheader}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={[{backgroundColor: appColor.white}, styles.iditem]}
-            onPress={() => {
-              setModalVisible(true);
-            }}>
-            <TextComponent
-              text={'Huỷ đơn'}
-              fontsize={12}
-              color={appColor.subText}
-              fontFamily={fontFamilies.semiBold}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.6}
-            style={[{backgroundColor: appColor.primary}, styles.iditem]}
-            onPress={() => {
-              confirmOrder(_id);
-            }}>
-            <TextComponent
-              text={'Đã chuẩn bị món'}
-              fontsize={12}
-              color={appColor.white}
-              fontFamily={fontFamilies.semiBold}
-              styles={{textAlign: 'center'}}
-            />
-          </TouchableOpacity>
+          {!isConfirmed && ( // Chỉ hiển thị nút nếu chưa được xác nhận
+            <>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={[{backgroundColor: appColor.white}, styles.iditem]}
+                onPress={() => {
+                  setModalVisible(true);
+                  setOrderIdToCancel(_id);
+                }}>
+                <TextComponent
+                  text={'Huỷ đơn'}
+                  fontsize={12}
+                  color={appColor.subText}
+                  fontFamily={fontFamilies.semiBold}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.6}
+                style={[{backgroundColor: appColor.primary}, styles.iditem]}
+                onPress={() => {
+                  confirmOrder(_id);
+                  setConfirmedOrders({...confirmedOrders, [_id]: true});
+                }}>
+                <TextComponent
+                  text={'Xác nhận'}
+                  fontsize={12}
+                  color={appColor.white}
+                  fontFamily={fontFamilies.semiBold}
+                  styles={{textAlign: 'center'}}
+                />
+              </TouchableOpacity>
+            </>
+          )}
         </View>
         {/**/}
         <FlatList
@@ -151,11 +168,11 @@ const HomeScreen = () => {
               color={appColor.primary}
             />
           </View>
-          <TextComponent
+          {/*         <TextComponent
             text={'đã đặt 1 phút trước'}
             color={appColor.primary}
             fontFamily={fontFamilies.bold}
-          />
+          /> */}
         </View>
       </View>
     );
@@ -229,7 +246,9 @@ const HomeScreen = () => {
                   color={appColor.white}
                   fontsize={15}
                   textStyle={{fontFamily: fontFamilies.bold}}
-                  onPress={() => setModalVisible(false)}
+                  onPress={() => {
+                    setModalVisible(false), cancelOrder(orderIdToCancel);
+                  }}
                 />
               </View>
             </View>

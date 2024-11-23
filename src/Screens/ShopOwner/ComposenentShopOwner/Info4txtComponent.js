@@ -18,16 +18,18 @@ const Info4txtComponent = ({
         fontsize={fontsize ? fontsize : null}
         fontFamily={fontFamily1 ? fontFamily1 : null}
         text={text}
-        numberOfLines={1} // Giới hạn văn bản chỉ hiển thị một dòng
-        ellipsizeMode="tail"
+        numberOfLines={1}
+        ellipsizeMode={'tail'}
       />
       <TextComponent
         color={color2 ? color2 : null}
         fontsize={fontsize ? fontsize : null}
         fontFamily={fontFamily2 ? fontFamily2 : null}
         text={price}
-        numberOfLines={1} // Giới hạn văn bản chỉ hiển thị một dòng
-        ellipsizeMode="tail"
+        numberOfLines={1}
+        ellipsizeMode={'tail'}
+        textAlign={'right'}
+        width={'52%'}
       />
     </View>
   );

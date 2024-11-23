@@ -1,8 +1,4 @@
-import {
-  View,
-  StyleSheet,
-  ToastAndroid,
-} from 'react-native';
+import {View, StyleSheet, ToastAndroid} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import HeaderComponent from '../../components/HeaderComponent';
 import {appColor} from '../../constants/appColor';
@@ -12,6 +8,7 @@ import ButtonComponent from '../../components/ButtonComponent';
 import {ChangePassword} from '../../Redux/Reducers/ShopOwnerReducer';
 import {logout} from '../../Redux/Reducers/LoginSlice';
 import LoadingModal from '../../modal/LoadingModal';
+import TextComponent from './ComposenentShopOwner/TextComponent';
 
 const ChangePassScreen = () => {
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
@@ -55,6 +52,7 @@ const ChangePassScreen = () => {
           onChangeText={text => setNewpass(text)}
           isPassword={true}
         />
+        <TextComponent text="* Đổi mật khẩu thành công, tài khoản sẽ đăng xuất" />
       </View>
 
       <ButtonComponent

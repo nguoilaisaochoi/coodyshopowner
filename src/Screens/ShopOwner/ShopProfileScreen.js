@@ -17,11 +17,7 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useDispatch, useSelector} from 'react-redux';
 import {validatePhone} from '../../utils/Validators';
-import {
-  GetShop,
-  GetShopCategories,
-  UpdateShop,
-} from '../../Redux/Reducers/ShopOwnerReducer';
+import {GetShop, UpdateShop} from '../../Redux/Reducers/ShopOwnerReducer';
 import LoadingModal from '../../modal/LoadingModal';
 
 import SelectImage from './ComposenentShopOwner/SelectImage';
@@ -80,14 +76,19 @@ const ShopProfileScreen = ({navigation, route}) => {
     }
   }, [UpdateShopStatus]);
 
-  console.log(mycategory);
   //quản lí state correct(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   useEffect(() => {
     const checkphone = checkPhone(phone);
-    !name || !phone || checkphone || mycategory.length == 0
+    const date1 = new Date(open);
+    const date2 = new Date(close);
+    !name ||
+    !phone ||
+    checkphone ||
+    mycategory.length == 0 ||
+    (open && date1.getTime() >= date2.getTime())
       ? setCorrect(false)
       : setCorrect(true);
-  }, [name, phone, mycategory]);
+  }, [name, phone, mycategory, open, close]);
 
   //check phone
   const checkPhone = data => {

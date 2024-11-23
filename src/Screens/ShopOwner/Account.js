@@ -7,7 +7,7 @@ import {logout} from '../../Redux/Reducers/LoginSlice';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {fontFamilies} from '../../constants/fontFamilies';
-import {GetShopCategories} from '../../Redux/Reducers/ShopOwnerReducer';
+import {GetShop, GetShopCategories} from '../../Redux/Reducers/ShopOwnerReducer';
 import TextComponent from '../../components/TextComponent';
 
 const Account = () => {
@@ -21,9 +21,18 @@ const Account = () => {
   const gotoScreen = screen => {
     navigation.navigate(screen);
   };
+  
   useEffect(() => {
     dispatch(GetShopCategories());
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      dispatch(GetShop(user._id));
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>

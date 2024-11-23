@@ -17,7 +17,12 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useDispatch, useSelector} from 'react-redux';
 import {validatePhone} from '../../utils/Validators';
-import {GetShop, UpdateShop} from '../../Redux/Reducers/ShopOwnerReducer';
+import {
+  GetShop,
+  UpdateShop,
+  UpdateShopCategory,
+  updateShopCategory,
+} from '../../Redux/Reducers/ShopOwnerReducer';
 import LoadingModal from '../../modal/LoadingModal';
 
 import SelectImage from './ComposenentShopOwner/SelectImage';
@@ -28,8 +33,13 @@ import MapAPI from '../../core/apiMap/MapAPI';
 const ShopProfileScreen = ({navigation, route}) => {
   const {description} = route.params || {};
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
-  const {updateStatus, getData, GetShopCategoriesData, UpdateShopStatus} =
-    useSelector(state => state.shopowner);
+  const {
+    UpdateShopCategoryStatus,
+    getData,
+    GetShopCategoriesData,
+    UpdateShopStatus,
+    getStatus,
+  } = useSelector(state => state.shopowner);
   const [name, setName] = useState(getData?.name ?? null);
   const [category, setCategory] = useState(GetShopCategoriesData ?? null);
   const [phone, setPhone] = useState(getData?.phone ?? null);
@@ -54,27 +64,32 @@ const ShopProfileScreen = ({navigation, route}) => {
     const body = {
       name: name,
       phone: phone,
-      //category: category,
       images: [avatar],
       address: address,
+      shopCategory_ids: mycategory,
     };
+    const body2 = {shopCategory_ids: mycategory};
     dispath(UpdateShop({id: user._id, data: body}));
+    dispath(UpdateShopCategory({id: user._id, data: body2}));
   };
 
-  //thông báo cập nhật
+  //thông báo cập nhật thanh cong se goi lai thong tin shop
   useEffect(() => {
-    if (UpdateShopStatus == 'succeeded' && isclick) {
+    if (
+      UpdateShopStatus == 'succeeded' &&
+      UpdateShopCategoryStatus &&
+      isclick
+    ) {
       ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
       setIsLoading(false);
-      dispath(GetShop(user._id));
-      setisClick(false);
       navigation.goBack();
+      setisClick(false);
     } else if (UpdateShopStatus == 'failed' && isclick) {
       ToastAndroid.show('Cập nhật thất bại', ToastAndroid.SHORT);
       setIsLoading(false);
       setisClick(false);
     }
-  }, [UpdateShopStatus]);
+  }, [UpdateShopStatus, UpdateShopCategoryStatus]);
 
   //quản lí state correct(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   useEffect(() => {
@@ -108,12 +123,13 @@ const ShopProfileScreen = ({navigation, route}) => {
     setshowPicker(false);
   };
 
+  //lấy id loại khi vào component
   useEffect(() => {
-    const idbcategory = getData.shopCategory.map(item => {
+    const idcategory = getData.shopCategory.map(item => {
       return item.shopCategory_id;
     });
-    setMyCategory(idbcategory);
-  }, []);
+    setMyCategory(idcategory);
+  }, [getData]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -180,7 +196,7 @@ const ShopProfileScreen = ({navigation, route}) => {
           </TouchableOpacity>
           <View style={styles.rate}>
             <TextComponent text={'Đánh giá: '} color={appColor.subText} />
-            <TextComponent text={'5' + ' '} />
+            <TextComponent text={getData.rating + ' '} />
             <Image
               style={{width: 15, height: 15}}
               source={require('../../assets/images/shopowner/star.png')}

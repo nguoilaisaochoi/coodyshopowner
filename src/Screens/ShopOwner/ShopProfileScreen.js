@@ -46,8 +46,8 @@ const ShopProfileScreen = ({navigation, route}) => {
   const [address, setAddress] = useState(getData?.address ?? null);
   const dispath = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = useState(getData?.open ?? null); //thời gian mở cửa
-  const [close, setClose] = useState(getData?.close ?? null); //thời gian đóng cửa
+  const [open, setOpen] = useState(getData.openingHours ? new Date(getData.openingHours):null); //thời gian mở cửa
+  const [close, setClose] = useState(getData.closeHours ? new Date(getData.closeHours):null); //thời gian đóng cửa
   const [timeType, setTimeType] = useState(null); //phân biệt thời gian mở và đóng để setState
   const [imagePath, setImagePath] = useState(null); //nhận ảnh khi vừa chọn từ thư viện or chụp
   const [avatar, setAvatar] = useState(getData?.images[0] ?? null); //getData?.image[0]
@@ -67,6 +67,8 @@ const ShopProfileScreen = ({navigation, route}) => {
       images: [avatar],
       address: address,
       shopCategory_ids: mycategory,
+      openingHours: open,
+      closeHours: close,
     };
     const body2 = {shopCategory_ids: mycategory};
     dispath(UpdateShop({id: user._id, data: body}));

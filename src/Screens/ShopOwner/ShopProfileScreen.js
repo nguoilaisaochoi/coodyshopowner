@@ -18,10 +18,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {useDispatch, useSelector} from 'react-redux';
 import {validatePhone} from '../../utils/Validators';
 import {
-  GetShop,
   UpdateShop,
   UpdateShopCategory,
-  updateShopCategory,
 } from '../../Redux/Reducers/ShopOwnerReducer';
 import LoadingModal from '../../modal/LoadingModal';
 

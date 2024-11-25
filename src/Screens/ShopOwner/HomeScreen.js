@@ -6,6 +6,8 @@ import {
   FlatList,
   Modal,
   TextInput,
+  Alert,
+  ToastAndroid,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {appColor} from '../../constants/appColor';
@@ -40,12 +42,18 @@ const HomeScreen = () => {
       const newOrder = dataGot.order;
       setOrder(oldOrders => [...oldOrders, newOrder]);
     };
-    socketInstance.on('new_order_created', handleNewOrder);
-    socketInstance.on('order_completed', data => {
+    const handlecancelOrder = data => {
       setOrder(prevOrders =>
         prevOrders.filter(order => order._id !== data.orderId),
       );
-    });
+      ToastAndroid.show(
+        'Đơn ' + data.orderId.slice(-3) + ' đã bị huỷ',
+        ToastAndroid.LONG,
+      );
+    };
+    socketInstance.on('new_order_created', handleNewOrder);
+    socketInstance.on('order_completed', handlecancelOrder);
+    socketInstance.on('order_cancelled', handlecancelOrder);
     return () => {
       disconnectSocket();
     };
@@ -60,7 +68,6 @@ const HomeScreen = () => {
   const confirmOrder = orderId => {
     const socketInstance = getSocket();
     socketInstance.emit('confirm_order', orderId);
-    //setOrder(prevOrders => prevOrders.filter(order => order._id !== orderId));
   };
   const cancelOrder = orderId => {
     const socketInstance = getSocket();
@@ -374,6 +381,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 10,
     borderColor: appColor.lightgray,
+    padding: '5%',
   },
 });
 const data = [

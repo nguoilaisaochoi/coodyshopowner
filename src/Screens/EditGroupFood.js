@@ -75,13 +75,13 @@ const EditGroupFood = ({route}) => {
         {item ? (
           <>
             <ButtonComponent
-              text={'Xoá món'}
+              text={'Xoá nhóm món'}
               width={'45%'}
               backgroundColor={appColor.white}
               borderColor={appColor.white}
             />
             <ButtonComponent
-              text={'Sửa món'}
+              text={'Sửa nhóm món'}
               width={'45%'}
               color={appColor.white}
             />

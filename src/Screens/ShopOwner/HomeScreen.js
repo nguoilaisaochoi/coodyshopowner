@@ -52,8 +52,12 @@ const HomeScreen = () => {
       );
     };
     socketInstance.on('new_order_created', handleNewOrder);
-    socketInstance.on('order_completed', handlecancelOrder);
     socketInstance.on('order_cancelled', handlecancelOrder);
+    socketInstance.on('order_completed', data => {
+      setOrder(prevOrders =>
+        prevOrders.filter(order => order._id !== data.orderId),
+      );
+    });
     return () => {
       disconnectSocket();
     };

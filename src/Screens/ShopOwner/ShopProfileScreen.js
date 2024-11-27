@@ -221,7 +221,7 @@ const ShopProfileScreen = ({navigation, route}) => {
         <TextComponent text={'LOẠI HÌNH BÁN HÀNG'} />
         <MultiSelect
           style={styles.input}
-          data={category}
+          data={GetShopCategoriesData}
           labelField="name"
           valueField="_id"
           value={mycategory ?? 'trống'}

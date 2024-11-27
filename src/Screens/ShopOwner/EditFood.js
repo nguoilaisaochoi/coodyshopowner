@@ -6,11 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
   ToastAndroid,
+  ScrollView,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import HeaderComponent from '../../components/HeaderComponent';
 import {appColor} from '../../constants/appColor';
-
+import {MultiSelect} from 'react-native-element-dropdown';
 import InputFood1 from './ComposenentShopOwner/InputFood1';
 import TextComponent from '../../components/TextComponent';
 import InputFood2 from './ComposenentShopOwner/InputFood2';
@@ -19,17 +20,26 @@ import SelectImage from './ComposenentShopOwner/SelectImage';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   AddProduct,
+  DeleteProduct,
   GetProduct,
+  GetProductCategories,
   UpdateProduct,
 } from '../../Redux/Reducers/ShopOwnerReducer';
 import {useNavigation} from '@react-navigation/native';
+import {Trash} from 'iconsax-react-native';
+import ModalComponent from './ComposenentShopOwner/ModalComponent';
 
 const EditFood = ({route}) => {
-  const navigation = useNavigation();
-  const {updateStatus, productStatus, AddProductStatus, ProductCategoriesData} =
-    useSelector(state => state.shopowner); //data&status getshipper
-  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const {item} = route.params || {}; // Sử dụng || để đảm bảo item không phải là null
+  const navigation = useNavigation();
+  const {
+    updateStatus,
+    productStatus,
+    AddProductStatus,
+    ProductCategoriesData,
+    DeleteProductStatus,
+  } = useSelector(state => state.shopowner); //data&status getshipper
+  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const [name, setName] = useState(item?.name ?? null);
   const [price, setPrice] = useState(item?.price.toString() ?? null);
   const [image, setImage] = useState(item?.images[0] ?? null);
@@ -37,15 +47,22 @@ const EditFood = ({route}) => {
   const [category, setCategory] = useState(
     item?.categories[0] ?? ProductCategoriesData[0],
   ); //nhóm
-  const [status, setStatus] = useState(state[0].value);
   const [IsSheetOpen, setIsSheetOpen] = useState(false);
   const [click, setclick] = useState(false);
   const [correct, setCorrect] = useState(item ? true : false);
   const dispatch = useDispatch();
+  const [mycategory, setMyCategory] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false); //modal huỷ
 
+  //lọc nhóm hiện tại lấy id cho vào mycategory
   useEffect(() => {
-    console.log(JSON.stringify(category, null, 2));
-  }, [category]);
+    if (item) {
+      const idcateproduct = item.categories.map(item => {
+        return item.categoryProduct_id;
+      });
+      setMyCategory(idcateproduct);
+    }
+  }, [item]);
 
   //lấy ảnh sau nhận ảnh bên SelectImage
   useEffect(() => {
@@ -54,6 +71,7 @@ const EditFood = ({route}) => {
     }
   }, [imagePath]);
 
+  //thực hiện cập nhật
   const update = () => {
     setclick(true);
     const body = {
@@ -64,7 +82,7 @@ const EditFood = ({route}) => {
     };
     dispatch(UpdateProduct({id: item._id, data: body}));
   };
-
+  //thực hiện thêm
   const add = () => {
     setclick(true);
     const body = {
@@ -78,12 +96,23 @@ const EditFood = ({route}) => {
     console.log(body);
     dispatch(AddProduct({data: body}));
   };
+  //thực hiện xoá
+  const del = () => {
+    setclick(true);
+    dispatch(DeleteProduct({id: item._id}));
+  };
+
   //khi cap nhat or add thanh cong
   useEffect(() => {
-    if (updateStatus == 'succeeded' || AddProductStatus == 'succeeded') {
+    if (
+      updateStatus == 'succeeded' ||
+      DeleteProductStatus == 'succeeded' ||
+      AddProductStatus == 'succeeded'
+    ) {
+      setModalVisible(false);
       dispatch(GetProduct(user._id));
     }
-  }, [updateStatus, AddProductStatus]);
+  }, [updateStatus, DeleteProductStatus, AddProductStatus]);
 
   //khi goi lai danh sach san pham thanh cong
   useEffect(() => {
@@ -141,22 +170,34 @@ const EditFood = ({route}) => {
           value={price}
           onChangeText={text => setPrice(text)}
         />
-        <InputFood2
-          text={'Nhóm'}
-          data={item ? item.categories : ProductCategoriesData}
-          value={item ? category.categoryProduct_name : category.name}
-          labelField={item ? 'categoryProduct_name' : 'name'}
+        <TextComponent text={'NHÓM'} styles={{width: '89%', marginTop: '5%'}} />
+        <MultiSelect
+          style={styles.multiinput}
+          data={ProductCategoriesData}
+          labelField="name"
+          valueField="_id"
+          value={mycategory ?? 'trống'}
+          selectedTextStyle={{color: appColor.text}}
+          itemTextStyle={{color: appColor.text}}
+          placeholderStyle={{color: appColor.subText}}
+          placeholder={'Chọn loại bán hàng...'}
           onChange={item => {
-            setCategory(item);
+            setMyCategory(item);
           }}
-        />
-        <InputFood2
-          text={'trạng thái'}
-          data={state}
-          value={status}
-          onChange={item => {
-            setStatus(item.value);
-          }}
+          renderSelectedItem={(item, unSelect) => (
+            <TouchableOpacity
+              onPress={() => unSelect && unSelect(item)}
+              activeOpacity={0.8}>
+              <View style={styles.selectedStyle}>
+                <TextComponent
+                  styles={styles.textSelectedStyle}
+                  text={item.name}
+                  fontsize={14}
+                />
+                <Trash color="black" size={17} />
+              </View>
+            </TouchableOpacity>
+          )}
         />
       </View>
 
@@ -170,6 +211,9 @@ const EditFood = ({route}) => {
               width={'45%'}
               backgroundColor={appColor.white}
               borderColor={appColor.white}
+              onPress={() => {
+                setModalVisible(true);
+              }}
             />
             <ButtonComponent
               text={'Sửa món'}
@@ -183,7 +227,7 @@ const EditFood = ({route}) => {
           </>
         ) : (
           <ButtonComponent
-            text={'Yêu cầu thêm'}
+            text={'Thêm'}
             color={appColor.white}
             styles={{opacity: correct ? 1 : 0.5}}
             onPress={() => {
@@ -196,6 +240,16 @@ const EditFood = ({route}) => {
         <SelectImage
           setImagePath={setImagePath}
           setIsSheetOpen={setIsSheetOpen}
+        />
+      )}
+      {modalVisible && (
+        <ModalComponent
+          setModalVisible={setModalVisible}
+          Presscancel={() => setModalVisible(false)}
+          Pressok={() => {
+            del();
+          }}
+          titile={'Xác nhận xoá'}
         />
       )}
     </View>
@@ -254,6 +308,40 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 20,
+  },
+  multiinput: {
+    width: '90%',
+    marginTop: 10,
+    backgroundColor: appColor.white,
+    borderWidth: 1,
+    marginBottom: 10,
+    borderRadius: 10,
+    padding: 18,
+    height: 58,
+    color: appColor.text,
+    borderColor: appColor.lightgray,
+  },
+  selectedStyle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 14,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    marginTop: '3%',
+    marginRight: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  textSelectedStyle: {
+    marginRight: 5,
   },
 });
 //data cho dropdown

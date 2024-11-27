@@ -96,12 +96,6 @@ const RevenueScreen = () => {
           fontsize={14}
         />
         <Info4txtComponent
-          text={' Khoảng cách'}
-          color1={appColor.subText}
-          price={gap + ' Km'}
-          fontsize={14}
-        />
-        <Info4txtComponent
           text={' Thu nhập'}
           color1={appColor.subText}
           price={formatCurrency(totalPrice)}

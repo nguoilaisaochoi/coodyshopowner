@@ -8,13 +8,12 @@ import {appColor} from '../constants/appColor';
 import HomeScreen from '../Screens/ShopOwner/HomeScreen';
 import RevenueScreen from '../Screens/ShopOwner/RevenueScreen';
 import Account from '../Screens/ShopOwner/Account';
-import ProfileScreen from '../Screens/ShopOwner/ProfileScreen';
 import ChangePassScreen from '../Screens/ShopOwner/ChangePassScreen';
 import Food from '../Screens/ShopOwner/Food';
 import EditFood from '../Screens/ShopOwner/EditFood';
 import EditGroupFood from '../Screens/EditGroupFood';
 import ShopProfileScreen from '../Screens/ShopOwner/ShopProfileScreen';
-import ShopCategories from '../Screens/ShopOwner/ShopCategories';
+import ShopCategories from '../Screens/ShopOwner/AddAddress';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -23,7 +22,6 @@ const MainNavigation = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="Tab" component={TabNavigation} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="ChangePass" component={ChangePassScreen} />
       <Stack.Screen name="Food" component={Food} />
       <Stack.Screen name="EditFood" component={EditFood} />

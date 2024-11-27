@@ -1,4 +1,11 @@
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ToastAndroid,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import HeaderComponent from '../components/HeaderComponent';
 import {appColor} from '../constants/appColor';
@@ -6,21 +13,79 @@ import ButtonComponent from '../components/ButtonComponent';
 import SelectImage from './ShopOwner/ComposenentShopOwner/SelectImage';
 import TextComponent from '../components/TextComponent';
 import InputFood1 from './ShopOwner/ComposenentShopOwner/InputFood1';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  AddProductCate,
+  DeleteProductCate,
+  GetProductCategories,
+  UpdateProductCate,
+  UpdateShopCategory,
+} from '../Redux/Reducers/ShopOwnerReducer';
+import ModalComponent from './ShopOwner/ComposenentShopOwner/ModalComponent';
 
-const EditGroupFood = ({route}) => {
+const EditGroupFood = ({route, navigation}) => {
+  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
+  const {
+    AddProductCateStatus,
+    DeleteProductCateStatus,
+    ProductCategoriesStatus,
+    UpdateProductCateStatus,
+  } = useSelector(state => state.shopowner); //data&status getshipper
   const {item} = route.params || {};
   const [name, setName] = useState(null);
-  const [image, setImage] = useState(null);
+  //const [image, setImage] = useState(null);
   const [imagePath, setImagePath] = useState(null);
   const [IsSheetOpen, setIsSheetOpen] = useState(false);
-
+  const [click, setclick] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false); //modal huỷ
+  const dispatch = useDispatch();
   useEffect(() => {
     if (item) {
       setName(item.name);
-      setImage(item.image);
     }
-    console.log(item)
   }, []);
+
+  //them nhom
+  const add = () => {
+    setclick(true);
+    const body = {
+      name: name,
+      shopOwner: user._id,
+    };
+    dispatch(AddProductCate({data: body}));
+  };
+  //xoa
+  const delgroup = () => {
+    setclick(true);
+    dispatch(DeleteProductCate(item._id));
+  };
+  //update
+  const update = () => {
+    setclick(true);
+    dispatch(UpdateProductCate({id: item._id, data: {name: name}}));
+  };
+  //neu thanh cong goi lai api lay nhom mon an
+  useEffect(() => {
+    if (
+      AddProductCateStatus == 'succeeded' ||
+      DeleteProductCateStatus == 'succeeded' ||
+      UpdateProductCateStatus == 'succeeded'
+    ) {
+      setModalVisible(false);
+      dispatch(GetProductCategories(user._id));
+    }
+  }, [AddProductCateStatus, DeleteProductCateStatus, UpdateProductCateStatus]);
+
+  //cap nhat lai nhom mon
+  useEffect(() => {
+    if (ProductCategoriesStatus == 'succeeded' && click) {
+      setTimeout(() => {
+        setclick(false);
+        navigation.goBack();
+        ToastAndroid.show('Thành công', ToastAndroid.SHORT);
+      }, 200);
+    }
+  }, [ProductCategoriesStatus]);
 
   //lấy ảnh sau nhận ảnh bên SelectImage
   useEffect(() => {
@@ -37,32 +102,6 @@ const EditGroupFood = ({route}) => {
         isback={true}
       />
       <View style={styles.body}>
-        <TouchableOpacity
-          style={styles.boximg}
-          activeOpacity={0.9}
-          onPress={() => {
-            setIsSheetOpen(true);
-          }}>
-          {image ? (
-            <Image
-              style={{width: '100%', height: '100%'}}
-              source={{
-                uri: image,
-              }}
-            />
-          ) : (
-            <>
-              <Image
-                style={{flex: 0.3, resizeMode: 'contain', alignSelf: 'center'}}
-                source={require('../assets/images/shopowner/upload.png')}
-              />
-              <TextComponent
-                text={'Tải ảnh'}
-                styles={{opacity: 0.5, marginTop: '5%'}}
-              />
-            </>
-          )}
-        </TouchableOpacity>
         <InputFood1
           title={'Tên nhóm'}
           value={name}
@@ -79,21 +118,43 @@ const EditGroupFood = ({route}) => {
               width={'45%'}
               backgroundColor={appColor.white}
               borderColor={appColor.white}
+              onPress={() => {
+                setModalVisible(true);
+              }}
             />
             <ButtonComponent
               text={'Sửa nhóm món'}
               width={'45%'}
               color={appColor.white}
+              onPress={() => {
+                update();
+              }}
             />
           </>
         ) : (
-          <ButtonComponent text={'Yêu cầu thêm'} color={appColor.white} />
+          <ButtonComponent
+            text={'Thêm'}
+            color={appColor.white}
+            onPress={() => {
+              add();
+            }}
+          />
         )}
       </View>
       {IsSheetOpen && (
         <SelectImage
           setImagePath={setImagePath}
           setIsSheetOpen={setIsSheetOpen}
+        />
+      )}
+      {modalVisible && (
+        <ModalComponent
+          setModalVisible={setModalVisible}
+          Presscancel={() => setModalVisible(false)}
+          Pressok={() => {
+            delgroup();
+          }}
+          titile={'Xác nhận xoá'}
         />
       )}
     </View>

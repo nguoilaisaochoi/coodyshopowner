@@ -32,8 +32,6 @@ const LoginScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const {user, status, error} = useSelector(state => state.login);
   const [signbtn, setsignbtn] = useState(false);
-  // console.log('status', status);
-  // console.log('isLoading', isLoading);
 
   const changeEmail = data => {
     setEmail(data);

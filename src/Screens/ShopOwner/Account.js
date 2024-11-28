@@ -26,12 +26,7 @@ const Account = () => {
     dispatch(GetShopCategories());
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      dispatch(GetShop(user._id));
-    });
-    return unsubscribe;
-  }, [navigation]);
+
 
   return (
     <View style={styles.container}>

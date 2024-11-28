@@ -113,7 +113,7 @@ const HomeScreen = () => {
   };
   //list đơn hàng
   const renderItem = ({item}) => {
-    const {_id, items, totalPrice} = item;
+    const {_id, items, totalPrice, paymentMethod, shippingfee} = item;
     //gán giá trị cho biến isConfirmed dựa trên
     //key _id có tồn tại trong đối tượng confirmedOrders hay không.
     const isConfirmed = confirmedOrders[_id];
@@ -179,11 +179,13 @@ const HomeScreen = () => {
               color={appColor.primary}
             />
           </View>
-          {/*         <TextComponent
-            text={'đã đặt 1 phút trước'}
-            color={appColor.primary}
-            fontFamily={fontFamilies.bold}
-          /> */}
+          {paymentMethod != 'Tiền mặt' && (
+            <TextComponent
+              text={'Gửi shipper: ' + formatCurrency(shippingfee)}
+              color={appColor.text}
+              fontFamily={fontFamilies.bold}
+            />
+          )}
         </View>
       </View>
     );

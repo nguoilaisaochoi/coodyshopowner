@@ -18,6 +18,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {useDispatch, useSelector} from 'react-redux';
 import {validatePhone} from '../../utils/Validators';
 import {
+  GetShop,
   UpdateShop,
   UpdateShopCategory,
 } from '../../Redux/Reducers/ShopOwnerReducer';
@@ -36,6 +37,7 @@ const ShopProfileScreen = ({navigation, route}) => {
     getData,
     GetShopCategoriesData,
     UpdateShopStatus,
+    getStatus,
   } = useSelector(state => state.shopowner);
   const [name, setName] = useState(getData?.name ?? null);
   const [category, setCategory] = useState(GetShopCategoriesData ?? null);
@@ -86,10 +88,7 @@ const ShopProfileScreen = ({navigation, route}) => {
       UpdateShopCategoryStatus &&
       isclick
     ) {
-      ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
-      setIsLoading(false);
-      navigation.goBack();
-      setisClick(false);
+      dispath(GetShop(user._id));
     } else if (UpdateShopStatus == 'failed' && isclick) {
       ToastAndroid.show('Cập nhật thất bại', ToastAndroid.SHORT);
       setIsLoading(false);
@@ -97,6 +96,14 @@ const ShopProfileScreen = ({navigation, route}) => {
     }
   }, [UpdateShopStatus, UpdateShopCategoryStatus]);
 
+  useEffect(() => {
+    if (getStatus == 'succeeded' && isclick) {
+      ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
+      setIsLoading(false);
+      setisClick(false);
+      navigation.goBack();
+    }
+  }, [getStatus]);
   //quản lí state correct(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   useEffect(() => {
     const checkphone = checkPhone(phone);
@@ -128,7 +135,7 @@ const ShopProfileScreen = ({navigation, route}) => {
       return item.shopCategory_id;
     });
     setMyCategory(idcategory);
-  }, [getData]);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -162,7 +169,6 @@ const ShopProfileScreen = ({navigation, route}) => {
       console.log('error', error);
     }
   };
-  console.log(open);
   //
   return (
     <View style={styles.container}>

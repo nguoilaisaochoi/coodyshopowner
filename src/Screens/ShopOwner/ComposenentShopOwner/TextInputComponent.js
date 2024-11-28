@@ -19,7 +19,7 @@ const TextInputComponent = ({
   isPassword,
   editable,
   opacity,
-  keyboardType
+  keyboardType,
 }) => {
   const [showpassword, setShowPassword] = useState(true);
   return (
@@ -27,7 +27,7 @@ const TextInputComponent = ({
       <TextComponent
         text={text}
         color={error ? appColor.primary : appColor.text}
-        styles={{opacity:opacity??1}}
+        styles={{opacity: opacity ?? 1}}
       />
       {isPassword ? (
         <View
@@ -63,6 +63,7 @@ const TextInputComponent = ({
             {
               borderColor: error ? appColor.primary : appColor.input,
               paddingRight: '5%',
+              opacity: opacity ?? 1,
             },
           ]}
           value={value}

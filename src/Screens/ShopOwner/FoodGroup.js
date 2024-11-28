@@ -14,14 +14,9 @@ import { useSelector } from 'react-redux';
 import TextComponent from '../../components/TextComponent';
 
 const FoodGroup = () => {
-  const [Group, setGroup] = useState(null);
-  const {getData,ProductCategoriesData} = useSelector(state => state.shopowner); //data&status getshipper
-  //set data mẫu khi vừa vào component
+  const {getData,ProductCategoriesData} = useSelector(state => state.shopowner); 
   const navigation = useNavigation();
-  useEffect(() => {
-    setGroup(ProductCategoriesData);
-  }, []);
-
+ 
   const renderItem = ({item}) => {
     return (
       <TouchableOpacity
@@ -41,7 +36,7 @@ const FoodGroup = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={Group}
+        data={ProductCategoriesData}
         renderItem={renderItem}
         keyExtractor={item => item._id}
       />

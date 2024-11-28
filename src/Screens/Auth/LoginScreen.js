@@ -19,7 +19,7 @@ import AxiosInstance from '../../helpers/AxiosInstance';
 
 GoogleSignin.configure({
   webClientId:
-    '119981390944-barvektsvlrt5ikstm2lh5s6ik2712ko.apps.googleusercontent.com',
+    '859243514980-12fffghmt555vrj4n751kslad8ulkq2t.apps.googleusercontent.com',
 });
 Settings.setAppID('825915416410531');
 
@@ -78,7 +78,7 @@ const LoginScreen = ({navigation}) => {
       if (response.data == true) {
         dispatch(loginWithSocial({userInfo}));
       } else {
-        navigation.navigate('AddPhone', {userInfo});
+        navigation.navigate('Register', {userInfo});
       }
     } catch (error) {
       console.log(error);
@@ -120,7 +120,7 @@ const LoginScreen = ({navigation}) => {
       <Image
         source={require('../../assets/images/auth/login-regis/logo.png')}
       />
-      <SpaceComponent height={30} />
+
       <RowComponent>
         <TextComponent
           text={'Coody ShopOwner '}
@@ -134,7 +134,7 @@ const LoginScreen = ({navigation}) => {
           fontFamily={fontFamilies.bold}
         />
       </RowComponent>
-      <SpaceComponent height={10} />
+      <SpaceComponent height={"2%"} />
       <TextComponent
         text={'Vui lòng nhập thông tin của bạn'}
         fontFamily={fontFamilies.bold}

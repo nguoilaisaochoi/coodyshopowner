@@ -1,4 +1,4 @@
-import {View, StyleSheet, ToastAndroid} from 'react-native';
+import {View, StyleSheet, ToastAndroid, ScrollView} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import HeaderComponent from '../../components/HeaderComponent';
 import {appColor} from '../../constants/appColor';
@@ -31,7 +31,7 @@ const ChangePassScreen = () => {
   //
   useEffect(() => {
     if (ChangePasswordStatus == 'succeeded' && isLoading) {
-      ToastAndroid.show('Thành công!, Hãy đăng nhập lại', ToastAndroid.SHORT);
+      ToastAndroid.show('Thành công! Hãy đăng nhập lại', ToastAndroid.SHORT);
       dispatch(logout());
       setIsLoading(false);
     } else if (ChangePasswordStatus == 'failed' && isLoading) {
@@ -47,7 +47,7 @@ const ChangePassScreen = () => {
   return (
     <View style={styles.container}>
       <HeaderComponent isback={true} text={'Đổi mật khẩu'} />
-      <View style={{flex: 1}}>
+      <ScrollView style={{flex: 1}}>
         <TextInputComponent
           text={'Mật khẩu cũ'}
           value={oldpass}
@@ -68,7 +68,7 @@ const ChangePassScreen = () => {
           error={repass != newpass ? 'Mật khẩu không khớp' : null}
         />
         <TextComponent text="* Đổi mật khẩu thành công, tài khoản sẽ đăng xuất" />
-      </View>
+      </ScrollView>
 
       <ButtonComponent
         text={'Thay đổi'}

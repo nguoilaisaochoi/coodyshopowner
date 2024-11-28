@@ -32,18 +32,12 @@ const EditGroupFood = ({route, navigation}) => {
     UpdateProductCateStatus,
   } = useSelector(state => state.shopowner); //data&status getshipper
   const {item} = route.params || {};
-  const [name, setName] = useState(null);
-  //const [image, setImage] = useState(null);
+  const [name, setName] = useState(item?.name ?? null);
   const [imagePath, setImagePath] = useState(null);
   const [IsSheetOpen, setIsSheetOpen] = useState(false);
   const [click, setclick] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
   const dispatch = useDispatch();
-  useEffect(() => {
-    if (item) {
-      setName(item.name);
-    }
-  }, []);
 
   //them nhom
   const add = () => {
@@ -54,6 +48,7 @@ const EditGroupFood = ({route, navigation}) => {
     };
     dispatch(AddProductCate({data: body}));
   };
+
   //xoa
   const delgroup = () => {
     setclick(true);
@@ -71,7 +66,6 @@ const EditGroupFood = ({route, navigation}) => {
       DeleteProductCateStatus == 'succeeded' ||
       UpdateProductCateStatus == 'succeeded'
     ) {
-      setModalVisible(false);
       dispatch(GetProductCategories(user._id));
     }
   }, [AddProductCateStatus, DeleteProductCateStatus, UpdateProductCateStatus]);
@@ -79,11 +73,10 @@ const EditGroupFood = ({route, navigation}) => {
   //cap nhat lai nhom mon
   useEffect(() => {
     if (ProductCategoriesStatus == 'succeeded' && click) {
-      setTimeout(() => {
-        setclick(false);
-        navigation.goBack();
-        ToastAndroid.show('Thành công', ToastAndroid.SHORT);
-      }, 200);
+      setclick(false);
+      setModalVisible(false);
+      navigation.goBack();
+      ToastAndroid.show('Thành công', ToastAndroid.SHORT);
     }
   }, [ProductCategoriesStatus]);
 

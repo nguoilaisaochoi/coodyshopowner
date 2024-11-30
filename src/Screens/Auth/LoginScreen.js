@@ -51,7 +51,13 @@ const LoginScreen = ({navigation}) => {
 
   //quản lí đăng nhập
   useEffect(() => {
-    if (status != 'loading' && signbtn == true && user?.role != 'shopOwner') {
+    if (status == 'success' && signbtn == true && user?.role != 'shopOwner') {
+      setIsLoading(false);
+      setTimeout(() => {
+        Alert.alert('Thông báo', 'Bạn không phải là chủ cửa hàng');
+        setsignbtn(false);
+      }, 200);
+    }else if(status == 'failed' && signbtn == true){
       setIsLoading(false);
       setTimeout(() => {
         Alert.alert('Thông báo', 'Thông tin đăng nhập không đúng');
@@ -105,7 +111,7 @@ const LoginScreen = ({navigation}) => {
           if (response.data == true) {
             dispatch(loginWithSocial({userInfo}));
           } else {
-            navigation.navigate('AddPhone', {userInfo});
+            navigation.navigate('Register', {userInfo});
           }
         }
       }

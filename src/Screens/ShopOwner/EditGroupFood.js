@@ -1,18 +1,6 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  ToastAndroid,
-} from 'react-native';
+import {View, StyleSheet, ToastAndroid} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import HeaderComponent from '../components/HeaderComponent';
-import {appColor} from '../constants/appColor';
-import ButtonComponent from '../components/ButtonComponent';
-import SelectImage from './ShopOwner/ComposenentShopOwner/SelectImage';
-import TextComponent from '../components/TextComponent';
-import InputFood1 from './ShopOwner/ComposenentShopOwner/InputFood1';
+import {appColor} from '../../constants/appColor';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   AddProductCate,
@@ -20,8 +8,12 @@ import {
   GetProductCategories,
   UpdateProductCate,
   UpdateShopCategory,
-} from '../Redux/Reducers/ShopOwnerReducer';
-import ModalComponent from './ShopOwner/ComposenentShopOwner/ModalComponent';
+} from '../../Redux/Reducers/ShopOwnerReducer';
+import HeaderComponent from '../../components/HeaderComponent';
+import ButtonComponent from '../../components/ButtonComponent';
+import SelectImage from './ComposenentShopOwner/SelectImage';
+import InputFood1 from './ComposenentShopOwner/InputFood1';
+import ModalComponent from './ComposenentShopOwner/ModalComponent';
 
 const EditGroupFood = ({route, navigation}) => {
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập

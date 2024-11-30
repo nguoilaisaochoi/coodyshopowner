@@ -39,7 +39,7 @@ const ForgotPassword = ({ navigation }) => {
             }
         } catch (error) {
             setIsLoading(false)
-            console.log(error);
+            ToastAndroid.show(`${error.response.data.message}`, ToastAndroid.SHORT);
         }
 
     }

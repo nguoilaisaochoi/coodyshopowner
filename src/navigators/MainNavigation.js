@@ -11,9 +11,10 @@ import Account from '../Screens/ShopOwner/Account';
 import ChangePassScreen from '../Screens/ShopOwner/ChangePassScreen';
 import Food from '../Screens/ShopOwner/Food';
 import EditFood from '../Screens/ShopOwner/EditFood';
-import EditGroupFood from '../Screens/EditGroupFood';
+
 import ShopProfileScreen from '../Screens/ShopOwner/ShopProfileScreen';
 import ShopCategories from '../Screens/ShopOwner/AddAddress';
+import EditGroupFood from '../Screens/ShopOwner/EditGroupFood';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();

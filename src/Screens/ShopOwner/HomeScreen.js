@@ -27,10 +27,10 @@ const HomeScreen = () => {
   const [Order, setOrder] = useState([]); //set,read api data đơn hàng
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
-  const [value, setValue] = useState(null); //lưu lí do huỷ đơn
   //const IDshopowner = useState('671346345647791835ac3a3b');
   const [confirmedOrders, setConfirmedOrders] = useState({});
   const [orderIdToCancel, setOrderIdToCancel] = useState(null);
+  const [reason, setReason] = useState(null); //lưu lí do huỷ đơn
   const dispatch = useDispatch();
   //
   useEffect(() => {
@@ -50,6 +50,7 @@ const HomeScreen = () => {
         'Đơn ' + data.orderId.slice(-3) + ' đã bị huỷ',
         ToastAndroid.LONG,
       );
+      setReason(null);
     };
     socketInstance.on('new_order_created', handleNewOrder);
     socketInstance.on('order_cancelled', handlecancelOrder);
@@ -75,7 +76,7 @@ const HomeScreen = () => {
   };
   const cancelOrder = orderId => {
     const socketInstance = getSocket();
-    socketInstance.emit('cancel_order', orderId);
+    socketInstance.emit('cancel_order', orderId, reason);
     setOrder(prevOrders => prevOrders.filter(order => order._id !== orderId));
     setOrderIdToCancel(null);
   };
@@ -240,8 +241,8 @@ const HomeScreen = () => {
               />
               <TextInput
                 style={styles.input}
-                value={value}
-                onChangeText={text => setValue(text)}
+                value={reason}
+                onChangeText={text => setReason(text)}
               />
               <View style={styles.viewbutton}>
                 <ButtonComponent

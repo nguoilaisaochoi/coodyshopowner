@@ -77,8 +77,9 @@ const EditFood = ({route}) => {
     const body = {
       name: name,
       price: price,
-      //status: status,
-      //image: await uploadImageToCloudinary(imagePath),
+      images: [image],
+      category_ids:mycategory,
+      //shopOwner_id:user._id
     };
     dispatch(UpdateProduct({id: item._id, data: body}));
   };
@@ -89,11 +90,10 @@ const EditFood = ({route}) => {
       name: name,
       price: price,
       images: [image],
-      categories: [category._id],
+      categories: mycategory,
       description: 'Mô tả sản phẩm',
       shopOwner: user._id,
     };
-    console.log(body);
     dispatch(AddProduct({data: body}));
   };
   //thực hiện xoá

@@ -29,6 +29,8 @@ import {useNavigation} from '@react-navigation/native';
 import {Trash} from 'iconsax-react-native';
 import ModalComponent from './ComposenentShopOwner/ModalComponent';
 import {uploadImageToCloudinary} from './ComposenentShopOwner/UploadImage';
+import LoadingModal from '../../modal/LoadingModal';
+import {handleChangeText} from '../../utils/Validators';
 
 const EditFood = ({route}) => {
   const {item} = route.params || {}; // Sử dụng || để đảm bảo item không phải là null
@@ -54,6 +56,7 @@ const EditFood = ({route}) => {
   const dispatch = useDispatch();
   const [mycategory, setMyCategory] = useState([]);
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
+  const [isLoading, setIsLoading] = useState(false);
 
   //lọc nhóm hiện tại lấy id cho vào mycategory
   useEffect(() => {
@@ -118,6 +121,7 @@ const EditFood = ({route}) => {
   //khi goi lai danh sach san pham thanh cong
   useEffect(() => {
     if (productStatus == 'succeeded' && click) {
+      setIsLoading(false);
       navigation.goBack();
       setclick(false);
       ToastAndroid.show('Thành công', ToastAndroid.SHORT);
@@ -126,8 +130,10 @@ const EditFood = ({route}) => {
 
   //kiem tra da dien day du thong tin chua
   useEffect(() => {
-    name && price ? setCorrect(true) : setCorrect(false);
-  }, [name, price]);
+    name && price && image && mycategory.length >= 1
+      ? setCorrect(true)
+      : setCorrect(false);
+  }, [name, price, image, mycategory]);
 
   return (
     <View style={styles.container}>
@@ -168,8 +174,9 @@ const EditFood = ({route}) => {
         />
         <InputFood1
           title={'Giá bán'}
-          value={price}
+          value={price ? handleChangeText(price) : price}
           onChangeText={text => setPrice(text)}
+          keyboardType="numeric"
         />
         <TextComponent text={'NHÓM'} styles={{width: '89%', marginTop: '5%'}} />
         <MultiSelect
@@ -222,7 +229,10 @@ const EditFood = ({route}) => {
               color={appColor.white}
               styles={{opacity: correct ? 1 : 0.5}}
               onPress={() => {
-                correct ? update() : null;
+                if (correct) {
+                  update();
+                  setIsLoading(true);
+                }
               }}
             />
           </>
@@ -232,7 +242,10 @@ const EditFood = ({route}) => {
             color={appColor.white}
             styles={{opacity: correct ? 1 : 0.5}}
             onPress={() => {
-              correct ? add() : null;
+              if (correct) {
+                add();
+                setIsLoading(true);
+              }
             }}
           />
         )}
@@ -253,6 +266,7 @@ const EditFood = ({route}) => {
           titile={'Xác nhận xoá'}
         />
       )}
+      <LoadingModal visible={isLoading} />
     </View>
   );
 };
@@ -309,6 +323,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 20,
+    width: '100%',
+    backgroundColor: appColor.white,
   },
   multiinput: {
     width: '90%',

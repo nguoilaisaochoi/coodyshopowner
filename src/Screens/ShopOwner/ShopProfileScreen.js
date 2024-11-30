@@ -16,7 +16,7 @@ import ButtonComponent from '../../components/ButtonComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useDispatch, useSelector} from 'react-redux';
-import {validatePhone} from '../../utils/Validators';
+import {handleChangeText, validatePhone} from '../../utils/Validators';
 import {
   GetShop,
   UpdateShop,
@@ -28,7 +28,7 @@ import SelectImage from './ComposenentShopOwner/SelectImage';
 import {MultiSelect} from 'react-native-element-dropdown';
 import {Trash} from 'iconsax-react-native';
 import MapAPI from '../../core/apiMap/MapAPI';
-import { uploadImageToCloudinary } from './ComposenentShopOwner/UploadImage';
+import {uploadImageToCloudinary} from './ComposenentShopOwner/UploadImage';
 
 const ShopProfileScreen = ({navigation, route}) => {
   const {description} = route.params || {};
@@ -64,7 +64,6 @@ const ShopProfileScreen = ({navigation, route}) => {
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
 
-  //cập nhật shipper lên api(tham khảo)
   const update = async () => {
     const body = {
       name: name,
@@ -203,7 +202,7 @@ const ShopProfileScreen = ({navigation, route}) => {
           </TouchableOpacity>
           <View style={styles.rate}>
             <TextComponent text={'Đánh giá: '} color={appColor.subText} />
-            <TextComponent text={getData.rating + ' '} />
+            <TextComponent text={getData.rating.toFixed(1) + ' '} />
             <Image
               style={{width: 15, height: 15}}
               source={require('../../assets/images/shopowner/star.png')}
@@ -227,7 +226,7 @@ const ShopProfileScreen = ({navigation, route}) => {
         />
         <TextInputComponent
           text={'SỐ ĐIỆN THOẠI'}
-          value={phone}
+          value={phone ? handleChangeText(phone) : phone}
           keyboardType="numeric"
           onChangeText={text => setPhone(text)}
           error={phone ? checkPhone(phone) : 'Đây là thông tin bắt buộc'}

@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   item: {
     width: '80%',
     alignSelf: 'center',
-    backgroundColor: appColor.note,
+    backgroundColor: appColor.white,
     padding: '3%',
     marginBottom: '3%',
     borderRadius: 10,
@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop:'2%'
   },
   img: {
     width: '8%',

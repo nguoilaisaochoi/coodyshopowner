@@ -114,6 +114,7 @@ const RevenueScreen = () => {
         iconStyle={{tintColor: 'white'}}
         data={date}
         maxHeight={300}
+        itemTextStyle={{color: appColor.text}}
         labelField="label"
         valueField="value"
         placeholder={date[0].label}

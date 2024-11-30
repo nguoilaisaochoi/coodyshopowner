@@ -14,6 +14,7 @@ import ButtonComponent from '../../components/ButtonComponent';
 import SelectImage from './ComposenentShopOwner/SelectImage';
 import InputFood1 from './ComposenentShopOwner/InputFood1';
 import ModalComponent from './ComposenentShopOwner/ModalComponent';
+import LoadingModal from '../../modal/LoadingModal';
 
 const EditGroupFood = ({route, navigation}) => {
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
@@ -30,7 +31,8 @@ const EditGroupFood = ({route, navigation}) => {
   const [click, setclick] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
   const dispatch = useDispatch();
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [correct, setCorrect] = useState(item ? true : false);
   //them nhom
   const add = () => {
     setclick(true);
@@ -41,16 +43,21 @@ const EditGroupFood = ({route, navigation}) => {
     dispatch(AddProductCate({data: body}));
   };
 
-  //xoa
+  //xoa nhom
   const delgroup = () => {
     setclick(true);
     dispatch(DeleteProductCate(item._id));
   };
+
   //update
   const update = () => {
     setclick(true);
     dispatch(UpdateProductCate({id: item._id, data: {name: name}}));
   };
+  //check null value
+  useEffect(() => {
+    !name ? setCorrect(false) : setCorrect(true);
+  }, [name]);
   //neu thanh cong goi lai api lay nhom mon an
   useEffect(() => {
     if (
@@ -66,6 +73,7 @@ const EditGroupFood = ({route, navigation}) => {
   useEffect(() => {
     if (ProductCategoriesStatus == 'succeeded' && click) {
       setclick(false);
+      setIsLoading(false);
       setModalVisible(false);
       navigation.goBack();
       ToastAndroid.show('Thành công', ToastAndroid.SHORT);
@@ -110,9 +118,13 @@ const EditGroupFood = ({route, navigation}) => {
             <ButtonComponent
               text={'Sửa nhóm món'}
               width={'45%'}
+              styles={{opacity: correct ? 1 : 0.5}}
               color={appColor.white}
               onPress={() => {
-                update();
+                if (correct) {
+                  update();
+                  setIsLoading(true);
+                }
               }}
             />
           </>
@@ -120,8 +132,12 @@ const EditGroupFood = ({route, navigation}) => {
           <ButtonComponent
             text={'Thêm'}
             color={appColor.white}
+            styles={{opacity: correct ? 1 : 0.5}}
             onPress={() => {
-              add();
+              if (correct) {
+                add();
+                setIsLoading(true);
+              }
             }}
           />
         )}
@@ -142,6 +158,7 @@ const EditGroupFood = ({route, navigation}) => {
           titile={'Xác nhận xoá'}
         />
       )}
+      <LoadingModal visible={isLoading} />
     </View>
   );
 };

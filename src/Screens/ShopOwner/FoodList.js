@@ -94,7 +94,8 @@ const styles = StyleSheet.create({
     padding: '2%',
     borderRadius: 10,
     alignSelf: 'center',
-    marginBottom: '5%',
+    marginBottom: '3%',
+    marginTop:'2%'
   },
   boximg: {
     marginTop: '2%',

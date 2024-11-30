@@ -180,13 +180,13 @@ const HomeScreen = () => {
               color={appColor.primary}
             />
           </View>
-          {paymentMethod != 'Tiền mặt' && (
+          {/*          {paymentMethod != 'Tiền mặt' && (
             <TextComponent
               text={'Gửi shipper: ' + formatCurrency(shippingfee)}
               color={appColor.text}
               fontFamily={fontFamilies.bold}
             />
-          )}
+          )}*/}
         </View>
       </View>
     );
@@ -389,6 +389,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: appColor.lightgray,
     padding: '5%',
+    color: appColor.text,
   },
 });
 const data = [

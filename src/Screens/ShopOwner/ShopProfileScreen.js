@@ -28,6 +28,7 @@ import SelectImage from './ComposenentShopOwner/SelectImage';
 import {MultiSelect} from 'react-native-element-dropdown';
 import {Trash} from 'iconsax-react-native';
 import MapAPI from '../../core/apiMap/MapAPI';
+import { uploadImageToCloudinary } from './ComposenentShopOwner/UploadImage';
 
 const ShopProfileScreen = ({navigation, route}) => {
   const {description} = route.params || {};
@@ -68,13 +69,13 @@ const ShopProfileScreen = ({navigation, route}) => {
     const body = {
       name: name,
       phone: phone,
-      images: [avatar],
       address: address,
       shopCategory_ids: mycategory,
       openingHours: open,
       closeHours: close,
       //latitude: latitude,
       //longitude: longitude,
+      images: await uploadImageToCloudinary(imagePath),
     };
     const body2 = {shopCategory_ids: mycategory};
     dispath(UpdateShop({id: user._id, data: body}));
@@ -104,6 +105,7 @@ const ShopProfileScreen = ({navigation, route}) => {
       navigation.goBack();
     }
   }, [getStatus]);
+
   //quản lí state correct(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   useEffect(() => {
     const checkphone = checkPhone(phone);

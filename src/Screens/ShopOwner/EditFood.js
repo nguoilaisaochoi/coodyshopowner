@@ -28,6 +28,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {Trash} from 'iconsax-react-native';
 import ModalComponent from './ComposenentShopOwner/ModalComponent';
+import {uploadImageToCloudinary} from './ComposenentShopOwner/UploadImage';
 
 const EditFood = ({route}) => {
   const {item} = route.params || {}; // Sử dụng || để đảm bảo item không phải là null
@@ -72,24 +73,24 @@ const EditFood = ({route}) => {
   }, [imagePath]);
 
   //thực hiện cập nhật
-  const update = () => {
+  const update = async () => {
     setclick(true);
     const body = {
       name: name,
       price: price,
-      images: [image],
-      category_ids:mycategory,
+      category_ids: mycategory,
       //shopOwner_id:user._id
+      images: await uploadImageToCloudinary(imagePath),
     };
     dispatch(UpdateProduct({id: item._id, data: body}));
   };
   //thực hiện thêm
-  const add = () => {
+  const add = async () => {
     setclick(true);
     const body = {
       name: name,
       price: price,
-      images: [image],
+      images: await uploadImageToCloudinary(imagePath),
       categories: mycategory,
       description: 'Mô tả sản phẩm',
       shopOwner: user._id,

@@ -274,7 +274,7 @@ export const ShopSlice = createSlice({
       })
       .addCase(UpdateShopCategory.rejected, (state, action) => {
         state.UpdateShopCategoryStatus = 'failed';
-        console.error('Lỗi update' + action.error.message);
+        console.error('Lỗi update loai shop' + action.error.message);
       })
       //xoá sản phẩm
       .addCase(DeleteProduct.pending, (state, action) => {

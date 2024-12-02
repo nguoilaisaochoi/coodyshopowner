@@ -51,18 +51,30 @@ const LoginScreen = ({navigation}) => {
 
   //quản lí đăng nhập
   useEffect(() => {
-    if (status == 'success' && signbtn == true && user?.role != 'shopOwner') {
-      setIsLoading(false);
-      setTimeout(() => {
-        Alert.alert('Thông báo', 'Bạn không phải là chủ cửa hàng');
-        setsignbtn(false);
-      }, 200);
-    } else if (status == 'failed' && signbtn == true) {
-      setIsLoading(false);
-      setTimeout(() => {
-        Alert.alert('Thông báo', 'Thông tin đăng nhập không đúng');
-        setsignbtn(false);
-      }, 200);
+    if (signbtn) {
+      if (status == 'failed') {
+        setIsLoading(false);
+        setTimeout(() => {
+          Alert.alert('Thông báo', 'Thông tin đăng nhập không đúng');
+          setsignbtn(false);
+        }, 200);
+      } else if (status == 'success' && user?.role != 'shopOwner') {
+        setIsLoading(false);
+        setTimeout(() => {
+          Alert.alert('Thông báo', 'Tài khoản đã có quyền khác ở Coody');
+          setsignbtn(false);
+        }, 200);
+      } else if (
+        status == 'success' &&
+        user?.role == 'shopOwner' &&
+        !user?.verified
+      ) {
+        setIsLoading(false);
+        setTimeout(() => {
+          Alert.alert('Thông báo', 'Tài khoản này chưa được xác thực');
+          setsignbtn(false);
+        }, 200);
+      }
     }
   }, [status]);
 
@@ -81,6 +93,8 @@ const LoginScreen = ({navigation}) => {
       });
       if (response.data == true) {
         dispatch(loginWithSocial({userInfo}));
+        setsignbtn(true);
+        setIsLoading(true);
       } else {
         navigation.navigate('Register', {userInfo});
       }
@@ -212,7 +226,7 @@ const LoginScreen = ({navigation}) => {
       <SpaceComponent height={20} />
       <RowComponent justifyContent="space-between">
         <ButtonComponent
-          width={"100%"}
+          width={'100%'}
           height={51}
           icon={
             <Image

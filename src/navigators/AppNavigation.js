@@ -19,7 +19,7 @@ const AppNavigation = () => {
     <NavigationContainer>
       {isShowSplash ? (
         <SplashScreen />
-      ) : user?.role == 'shopOwner' ? (
+      ) : user?.role == 'shopOwner' && user?.verified ? (
         <MainNavigation />
       ) : (
         <AuthNavigation />

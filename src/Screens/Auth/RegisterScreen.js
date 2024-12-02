@@ -83,36 +83,23 @@ const RegisterScreen = ({navigation, route}) => {
   const checkrepass = (pass, repass) => {
     return pass == repass ? null : 'Mật khẩu không khớp';
   };
-
-  const handleRegister = async () => {
-    setIsLoading(true);
-    try {
-      const response = await AxiosInstance().post('/users/register', {
-        email,
-        password,
-        phone,
-        name,
-        role: 'shopOwner',
-        shopCategory_ids: value,
-        address,
-        latitude,
-        longitude,
-      });
-      if (response.status == true) {
-        ToastAndroid.show('Thành công', ToastAndroid.SHORT);
-        setIsLoading(false);
-        userInfo
-          ? dispatch(loginWithSocial({userInfo}))
-          : navigation.navigate('Login');
-        return response.data;
-      } else {
-        console.log(error);
-      }
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
+  const gotoAuthentic = () => {
+    const body = {
+      email,
+      password,
+      phone,
+      name,
+      role: 'shopOwner',
+      shopCategory_ids: value,
+      address,
+      latitude,
+      longitude,
+    };
+    if (body) {
+      navigation.navigate('Authentic', {body});
     }
   };
+
 
   const getCategories = async () => {
     try {
@@ -308,7 +295,7 @@ const RegisterScreen = ({navigation, route}) => {
       <ButtonComponent
         text={'Tạo tài khoản'}
         color={appColor.white}
-        onPress={correct ? handleRegister : null}
+        onPress={correct ? gotoAuthentic : null}
         styles={{opacity: correct ? 1 : 0.5}}
       />
       <SpaceComponent height={20} />

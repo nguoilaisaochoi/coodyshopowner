@@ -9,6 +9,7 @@ import ResetPasswordScreen from '../Screens/Auth/ResetPasswordScreen';
 import AddPhoneScreen from '../Screens/Auth/AddPhoneScreen';
 import LoginScreen from '../Screens/Auth/LoginScreen';
 import MainNavigation from './MainNavigation';
+import Authentic from '../Screens/Auth/Authentic';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +23,7 @@ const AuthNavigation = () => {
       <Stack.Screen name="Verify" component={VerifyScreen} />
       <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
       <Stack.Screen name="AddPhone" component={AddPhoneScreen} />
+      <Stack.Screen name="Authentic" component={Authentic} />
     </Stack.Navigator>
   );
 };

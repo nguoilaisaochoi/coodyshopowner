@@ -57,7 +57,7 @@ const LoginScreen = ({navigation}) => {
         Alert.alert('Thông báo', 'Bạn không phải là chủ cửa hàng');
         setsignbtn(false);
       }, 200);
-    }else if(status == 'failed' && signbtn == true){
+    } else if (status == 'failed' && signbtn == true) {
       setIsLoading(false);
       setTimeout(() => {
         Alert.alert('Thông báo', 'Thông tin đăng nhập không đúng');
@@ -138,7 +138,7 @@ const LoginScreen = ({navigation}) => {
           fontFamily={fontFamilies.bold}
         />
       </RowComponent>
-      <SpaceComponent height={"2%"} />
+      <SpaceComponent height={'2%'} />
       <TextComponent
         text={'Vui lòng nhập thông tin của bạn'}
         fontFamily={fontFamilies.bold}
@@ -209,10 +209,10 @@ const LoginScreen = ({navigation}) => {
         color={appColor.subText}
         textAlign="center"
       />
-      <SpaceComponent height={30} />
+      <SpaceComponent height={20} />
       <RowComponent justifyContent="space-between">
         <ButtonComponent
-          width={appInfor.sizes.width * 0.37}
+          width={"100%"}
           height={51}
           icon={
             <Image
@@ -224,7 +224,7 @@ const LoginScreen = ({navigation}) => {
           borderColor={appColor.subText}
           onPress={handleLoginWithGG}
         />
-        <ButtonComponent
+        {/*        <ButtonComponent
           width={appInfor.sizes.width * 0.37}
           height={51}
           icon={
@@ -236,7 +236,7 @@ const LoginScreen = ({navigation}) => {
           backgroundColor={appColor.white}
           borderColor={appColor.subText}
           onPress={handleLoginWithFB}
-        />
+        /> */}
       </RowComponent>
       {/* <ButtonComponent text={'Clear'} onPress={() => dispatch(logout())} type={'link'} /> */}
       <LoadingModal visible={isLoading} />

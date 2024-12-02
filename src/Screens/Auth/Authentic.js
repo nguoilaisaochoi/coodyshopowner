@@ -91,14 +91,16 @@ const Authentic = ({navigation, route}) => {
           </>
         )}
       </TouchableOpacity>
-      <ButtonComponent
-        text={'Gửi'}
-        styles={styles.bottom}
-        color={appColor.white}
-        onPress={() => {
-          handleRegister();
-        }}
-      />
+      {ImagePath && (
+        <ButtonComponent
+          text={'Gửi'}
+          styles={styles.bottom}
+          color={appColor.white}
+          onPress={() => {
+            handleRegister();
+          }}
+        />
+      )}
       <LoadingModal visible={isLoading} />
     </View>
   );

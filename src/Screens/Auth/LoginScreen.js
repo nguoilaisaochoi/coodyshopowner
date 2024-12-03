@@ -142,13 +142,13 @@ const LoginScreen = ({navigation}) => {
       <RowComponent>
         <TextComponent
           text={'Coody ShopOwner '}
-          fontsize={28}
+          fontsize={26}
           fontFamily={fontFamilies.bold}
           color={appColor.primary}
         />
         <TextComponent
           text={'Xin Chào'}
-          fontsize={28}
+          fontsize={26}
           fontFamily={fontFamilies.bold}
         />
       </RowComponent>

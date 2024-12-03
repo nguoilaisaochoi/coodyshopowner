@@ -136,7 +136,7 @@ const EditFood = ({route}) => {
   }, [name, price, image, mycategory]);
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {/*header */}
       <HeaderComponent text={item ? 'Sửa món' : 'Thêm món'} isback={true} />
       {/*body */}
@@ -208,7 +208,6 @@ const EditFood = ({route}) => {
           )}
         />
       </View>
-
       {/*bottom*/}
       {/*hiện yêu cầu thêm nếu khôg có item, có thì là xoá&sửa */}
       <View style={styles.bottom}>
@@ -267,7 +266,7 @@ const EditFood = ({route}) => {
         />
       )}
       <LoadingModal visible={isLoading} />
-    </View>
+    </ScrollView>
   );
 };
 
@@ -275,13 +274,14 @@ export default EditFood;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: appColor.white,
-    flex: 1,
+    flexGrow: 1,
     padding: '5%',
     paddingTop: '12%',
   },
   body: {
     alignItems: 'center',
     flex: 4,
+    backgroundColor: appColor.white,
   },
   boximg: {
     marginTop: '2%',
@@ -318,12 +318,14 @@ const styles = StyleSheet.create({
     borderColor: appColor.lightgray,
   },
   bottom: {
-    flex: 1,
+    flex: 0.4,
     alignItems: 'flex-end',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 20,
     width: '100%',
+    marginTop: '3%',
+    paddingBottom: '3%',
     backgroundColor: appColor.white,
   },
   multiinput: {

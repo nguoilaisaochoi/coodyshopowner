@@ -16,8 +16,9 @@ import ButtonComponent from '../../components/ButtonComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useDispatch, useSelector} from 'react-redux';
-import {validatePhone} from '../../utils/Validators';
+import {handleChangeText, validatePhone} from '../../utils/Validators';
 import {
+  GetShop,
   UpdateShop,
   UpdateShopCategory,
 } from '../../Redux/Reducers/ShopOwnerReducer';
@@ -27,6 +28,7 @@ import SelectImage from './ComposenentShopOwner/SelectImage';
 import {MultiSelect} from 'react-native-element-dropdown';
 import {Trash} from 'iconsax-react-native';
 import MapAPI from '../../core/apiMap/MapAPI';
+import {uploadImageToCloudinary} from './ComposenentShopOwner/UploadImage';
 
 const ShopProfileScreen = ({navigation, route}) => {
   const {description} = route.params || {};
@@ -42,10 +44,15 @@ const ShopProfileScreen = ({navigation, route}) => {
   const [category, setCategory] = useState(GetShopCategoriesData ?? null);
   const [phone, setPhone] = useState(getData?.phone ?? null);
   const [address, setAddress] = useState(getData?.address ?? null);
+  const [email, setEmail] = useState(getData?.email ?? null);
   const dispath = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = useState(getData.openingHours ? new Date(getData.openingHours):null); //thời gian mở cửa
-  const [close, setClose] = useState(getData.closeHours ? new Date(getData.closeHours):null); //thời gian đóng cửa
+  const [open, setOpen] = useState(
+    getData.openingHours.length > 1 ? new Date(getData.openingHours) : null,
+  ); //thời gian mở cửa
+  const [close, setClose] = useState(
+    getData.closeHours.length > 1 ? new Date(getData.closeHours) : null,
+  ); //thời gian đóng cửa
   const [timeType, setTimeType] = useState(null); //phân biệt thời gian mở và đóng để setState
   const [imagePath, setImagePath] = useState(null); //nhận ảnh khi vừa chọn từ thư viện or chụp
   const [avatar, setAvatar] = useState(getData?.images[0] ?? null); //getData?.image[0]
@@ -57,16 +64,17 @@ const ShopProfileScreen = ({navigation, route}) => {
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
 
-  //cập nhật shipper lên api(tham khảo)
   const update = async () => {
     const body = {
       name: name,
       phone: phone,
-      images: [avatar],
       address: address,
       shopCategory_ids: mycategory,
       openingHours: open,
       closeHours: close,
+      //latitude: latitude,
+      //longitude: longitude,
+      images: await uploadImageToCloudinary(imagePath),
     };
     const body2 = {shopCategory_ids: mycategory};
     dispath(UpdateShop({id: user._id, data: body}));
@@ -80,10 +88,7 @@ const ShopProfileScreen = ({navigation, route}) => {
       UpdateShopCategoryStatus &&
       isclick
     ) {
-      ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
-      setIsLoading(false);
-      navigation.goBack();
-      setisClick(false);
+      dispath(GetShop(user._id));
     } else if (UpdateShopStatus == 'failed' && isclick) {
       ToastAndroid.show('Cập nhật thất bại', ToastAndroid.SHORT);
       setIsLoading(false);
@@ -91,16 +96,19 @@ const ShopProfileScreen = ({navigation, route}) => {
     }
   }, [UpdateShopStatus, UpdateShopCategoryStatus]);
 
+  useEffect(() => {
+    if (getStatus == 'succeeded' && isclick) {
+      ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
+      setIsLoading(false);
+      setisClick(false);
+      navigation.goBack();
+    }
+  }, [getStatus]);
+
   //quản lí state correct(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   useEffect(() => {
     const checkphone = checkPhone(phone);
-    const date1 = new Date(open);
-    const date2 = new Date(close);
-    !name ||
-    !phone ||
-    checkphone ||
-    mycategory.length == 0 ||
-    (open && date1.getTime() >= date2.getTime())
+    !name || !phone || checkphone || mycategory.length == 0
       ? setCorrect(false)
       : setCorrect(true);
   }, [name, phone, mycategory, open, close]);
@@ -118,7 +126,6 @@ const ShopProfileScreen = ({navigation, route}) => {
       } else {
         setClose(selectedTime);
       }
-      console.log(selectedTime);
     }
     setshowPicker(false);
   };
@@ -129,7 +136,7 @@ const ShopProfileScreen = ({navigation, route}) => {
       return item.shopCategory_id;
     });
     setMyCategory(idcategory);
-  }, [getData]);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -163,7 +170,6 @@ const ShopProfileScreen = ({navigation, route}) => {
       console.log('error', error);
     }
   };
-
   //
   return (
     <View style={styles.container}>
@@ -196,7 +202,7 @@ const ShopProfileScreen = ({navigation, route}) => {
           </TouchableOpacity>
           <View style={styles.rate}>
             <TextComponent text={'Đánh giá: '} color={appColor.subText} />
-            <TextComponent text={getData.rating + ' '} />
+            <TextComponent text={getData.rating.toFixed(1) + ' '} />
             <Image
               style={{width: 15, height: 15}}
               source={require('../../assets/images/shopowner/star.png')}
@@ -213,15 +219,22 @@ const ShopProfileScreen = ({navigation, route}) => {
           error={name ? null : 'Đây là thông tin bắt buộc'}
         />
         <TextInputComponent
-          text={'HOTLINE'}
-          value={phone}
+          text={'EMAIL'}
+          value={email}
+          opacity={0.5}
+          editable={false}
+        />
+        <TextInputComponent
+          text={'SỐ ĐIỆN THOẠI'}
+          value={phone ? handleChangeText(phone) : phone}
+          keyboardType="numeric"
           onChangeText={text => setPhone(text)}
           error={phone ? checkPhone(phone) : 'Đây là thông tin bắt buộc'}
         />
         <TextComponent text={'LOẠI HÌNH BÁN HÀNG'} />
         <MultiSelect
           style={styles.input}
-          data={category}
+          data={GetShopCategoriesData}
           labelField="name"
           valueField="_id"
           value={mycategory ?? 'trống'}

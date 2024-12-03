@@ -27,10 +27,10 @@ const HomeScreen = () => {
   const [Order, setOrder] = useState([]); //set,read api data đơn hàng
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
-  const [value, setValue] = useState(null); //lưu lí do huỷ đơn
   //const IDshopowner = useState('671346345647791835ac3a3b');
   const [confirmedOrders, setConfirmedOrders] = useState({});
   const [orderIdToCancel, setOrderIdToCancel] = useState(null);
+  const [reason, setReason] = useState(null); //lưu lí do huỷ đơn
   const dispatch = useDispatch();
   //
   useEffect(() => {
@@ -50,10 +50,21 @@ const HomeScreen = () => {
         'Đơn ' + data.orderId.slice(-3) + ' đã bị huỷ',
         ToastAndroid.LONG,
       );
+      setReason(null);
     };
+    //nhận đơn
     socketInstance.on('new_order_created', handleNewOrder);
-    socketInstance.on('order_completed', handlecancelOrder);
-    socketInstance.on('order_cancelled', handlecancelOrder);
+    //huỷ đơn
+    socketInstance.on('order_cancelled', handlecancelOrder);  
+    //xoá danh sách khi tài đế đẫ lấy món
+    socketInstance.on('order_status_updated', data => {
+      if (data.status == "Đang giao hàng") {
+        setOrder(prevOrders =>
+          prevOrders.filter(order => order._id !== data.orderId),
+        );
+      }
+    });
+
     return () => {
       disconnectSocket();
     };
@@ -71,13 +82,13 @@ const HomeScreen = () => {
   };
   const cancelOrder = orderId => {
     const socketInstance = getSocket();
-    socketInstance.emit('cancel_order', orderId);
+    socketInstance.emit('cancel_order', orderId, reason);
     setOrder(prevOrders => prevOrders.filter(order => order._id !== orderId));
     setOrderIdToCancel(null);
   };
   //danh sách các sản phẩm chi tiết (số lượng thông tin sản phẩm của đơn)
   const renderItemdetail = ({item}) => {
-    const {name, images, price, quantity} = item;
+    const {name, images, price, quantity, note} = item;
     return (
       <View style={styles.itemlist}>
         <View style={styles.itemcount}>
@@ -102,6 +113,12 @@ const HomeScreen = () => {
               text={formatCurrency(price)}
               fontFamily={fontFamilies.bold}
             />
+            <TextComponent
+              text={note ?? ''}
+              fontFamily={fontFamilies.medium}
+              color={appColor.subText}
+              fontsize={13}
+            />
           </View>
         </View>
       </View>
@@ -109,7 +126,7 @@ const HomeScreen = () => {
   };
   //list đơn hàng
   const renderItem = ({item}) => {
-    const {_id, items, totalPrice} = item;
+    const {_id, items, totalPrice, voucher, shippingfee} = item;
     //gán giá trị cho biến isConfirmed dựa trên
     //key _id có tồn tại trong đối tượng confirmedOrders hay không.
     const isConfirmed = confirmedOrders[_id];
@@ -170,16 +187,18 @@ const HomeScreen = () => {
           <View style={{flexDirection: 'row'}}>
             <TextComponent text={'Thu nhập: '} fontFamily={fontFamilies.bold} />
             <TextComponent
-              text={formatCurrency(totalPrice)}
+              text={formatCurrency(totalPrice - shippingfee)}
               fontFamily={fontFamilies.bold}
               color={appColor.primary}
             />
           </View>
-          {/*         <TextComponent
-            text={'đã đặt 1 phút trước'}
-            color={appColor.primary}
-            fontFamily={fontFamilies.bold}
-          /> */}
+          {voucher && (
+            <TextComponent
+              text={'Có mã giảm giá'}
+              color={appColor.text}
+              fontFamily={fontFamilies.bold}
+            />
+          )}
         </View>
       </View>
     );
@@ -234,8 +253,8 @@ const HomeScreen = () => {
               />
               <TextInput
                 style={styles.input}
-                value={value}
-                onChangeText={text => setValue(text)}
+                value={reason}
+                onChangeText={text => setReason(text)}
               />
               <View style={styles.viewbutton}>
                 <ButtonComponent
@@ -382,6 +401,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: appColor.lightgray,
     padding: '5%',
+    color: appColor.text,
   },
 });
 const data = [

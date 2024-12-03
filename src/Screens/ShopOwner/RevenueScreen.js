@@ -96,12 +96,6 @@ const RevenueScreen = () => {
           fontsize={14}
         />
         <Info4txtComponent
-          text={' Khoảng cách'}
-          color1={appColor.subText}
-          price={gap + ' Km'}
-          fontsize={14}
-        />
-        <Info4txtComponent
           text={' Thu nhập'}
           color1={appColor.subText}
           price={formatCurrency(totalPrice)}
@@ -120,6 +114,7 @@ const RevenueScreen = () => {
         iconStyle={{tintColor: 'white'}}
         data={date}
         maxHeight={300}
+        itemTextStyle={{color: appColor.text}}
         labelField="label"
         valueField="value"
         placeholder={date[0].label}

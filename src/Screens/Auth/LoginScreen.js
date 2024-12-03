@@ -19,7 +19,7 @@ import AxiosInstance from '../../helpers/AxiosInstance';
 
 GoogleSignin.configure({
   webClientId:
-    '119981390944-barvektsvlrt5ikstm2lh5s6ik2712ko.apps.googleusercontent.com',
+    '859243514980-12fffghmt555vrj4n751kslad8ulkq2t.apps.googleusercontent.com',
 });
 Settings.setAppID('825915416410531');
 
@@ -32,8 +32,6 @@ const LoginScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const {user, status, error} = useSelector(state => state.login);
   const [signbtn, setsignbtn] = useState(false);
-  // console.log('status', status);
-  // console.log('isLoading', isLoading);
 
   const changeEmail = data => {
     setEmail(data);
@@ -53,12 +51,30 @@ const LoginScreen = ({navigation}) => {
 
   //quản lí đăng nhập
   useEffect(() => {
-    if (status != 'loading' && signbtn == true && user?.role != 'shopOwner') {
-      setIsLoading(false);
-      setTimeout(() => {
-        Alert.alert('Thông báo', 'Thông tin đăng nhập không đúng');
-        setsignbtn(false);
-      }, 200);
+    if (signbtn) {
+      if (status == 'failed') {
+        setIsLoading(false);
+        setTimeout(() => {
+          Alert.alert('Thông báo', 'Thông tin đăng nhập không đúng');
+          setsignbtn(false);
+        }, 200);
+      } else if (status == 'success' && user?.role != 'shopOwner') {
+        setIsLoading(false);
+        setTimeout(() => {
+          Alert.alert('Thông báo', 'Tài khoản đã có quyền khác ở Coody');
+          setsignbtn(false);
+        }, 200);
+      } else if (
+        status == 'success' &&
+        user?.role == 'shopOwner' &&
+        !user?.verified
+      ) {
+        setIsLoading(false);
+        setTimeout(() => {
+          Alert.alert('Thông báo', 'Tài khoản này chưa được xác thực');
+          setsignbtn(false);
+        }, 200);
+      }
     }
   }, [status]);
 
@@ -77,8 +93,10 @@ const LoginScreen = ({navigation}) => {
       });
       if (response.data == true) {
         dispatch(loginWithSocial({userInfo}));
+        setsignbtn(true);
+        setIsLoading(true);
       } else {
-        navigation.navigate('AddPhone', {userInfo});
+        navigation.navigate('Register', {userInfo});
       }
     } catch (error) {
       console.log(error);
@@ -107,7 +125,7 @@ const LoginScreen = ({navigation}) => {
           if (response.data == true) {
             dispatch(loginWithSocial({userInfo}));
           } else {
-            navigation.navigate('AddPhone', {userInfo});
+            navigation.navigate('Register', {userInfo});
           }
         }
       }
@@ -120,21 +138,21 @@ const LoginScreen = ({navigation}) => {
       <Image
         source={require('../../assets/images/auth/login-regis/logo.png')}
       />
-      <SpaceComponent height={30} />
+
       <RowComponent>
         <TextComponent
           text={'Coody ShopOwner '}
-          fontsize={28}
+          fontsize={26}
           fontFamily={fontFamilies.bold}
           color={appColor.primary}
         />
         <TextComponent
           text={'Xin Chào'}
-          fontsize={28}
+          fontsize={26}
           fontFamily={fontFamilies.bold}
         />
       </RowComponent>
-      <SpaceComponent height={10} />
+      <SpaceComponent height={'2%'} />
       <TextComponent
         text={'Vui lòng nhập thông tin của bạn'}
         fontFamily={fontFamilies.bold}
@@ -205,10 +223,10 @@ const LoginScreen = ({navigation}) => {
         color={appColor.subText}
         textAlign="center"
       />
-      <SpaceComponent height={30} />
+      <SpaceComponent height={20} />
       <RowComponent justifyContent="space-between">
         <ButtonComponent
-          width={appInfor.sizes.width * 0.37}
+          width={'100%'}
           height={51}
           icon={
             <Image
@@ -220,7 +238,7 @@ const LoginScreen = ({navigation}) => {
           borderColor={appColor.subText}
           onPress={handleLoginWithGG}
         />
-        <ButtonComponent
+        {/*        <ButtonComponent
           width={appInfor.sizes.width * 0.37}
           height={51}
           icon={
@@ -232,7 +250,7 @@ const LoginScreen = ({navigation}) => {
           backgroundColor={appColor.white}
           borderColor={appColor.subText}
           onPress={handleLoginWithFB}
-        />
+        /> */}
       </RowComponent>
       {/* <ButtonComponent text={'Clear'} onPress={() => dispatch(logout())} type={'link'} /> */}
       <LoadingModal visible={isLoading} />

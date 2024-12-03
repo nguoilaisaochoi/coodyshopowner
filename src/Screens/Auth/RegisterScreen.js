@@ -1,16 +1,24 @@
-import { FlatList, Image, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import ContainerComponent from '../../components/ContainerComponent';
 import SpaceComponent from '../../components/SpaceComponent';
 import RowComponent from '../../components/RowComponent';
 import TextComponent from '../../components/TextComponent';
-import { fontFamilies } from '../../constants/fontFamilies';
-import { appColor } from '../../constants/appColor';
+import {fontFamilies} from '../../constants/fontFamilies';
+import {appColor} from '../../constants/appColor';
 import InputComponent from '../../components/InputComponent';
 import ButtonComponent from '../../components/ButtonComponent';
-import { appInfor } from '../../constants/appInfor';
-import { globalStyle } from '../../styles/globalStyle';
-import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
+import {appInfor} from '../../constants/appInfor';
+import {globalStyle} from '../../styles/globalStyle';
+import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
 import {
   validateEmail,
   validatePass,
@@ -18,12 +26,15 @@ import {
 } from '../../utils/Validators';
 import AxiosInstance from '../../helpers/AxiosInstance';
 import LoadingModal from '../../modal/LoadingModal';
-import { Trash } from 'iconsax-react-native';
+import {Trash} from 'iconsax-react-native';
 import LineComponent from '../../components/LineComponent';
 import MapAPI from '../../core/apiMap/MapAPI';
+import {useDispatch} from 'react-redux';
+import { loginWithSocial } from '../../Redux/API/UserAPI';
 
-const RegisterScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
+const RegisterScreen = ({navigation, route}) => {
+  const {userInfo} = route.params || {};
+  const [email, setEmail] = useState(userInfo?.email ?? null);
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
@@ -35,30 +46,25 @@ const RegisterScreen = ({ navigation }) => {
   const [value, setValue] = useState([]);
   const [isShowAddress, setIsShowAddress] = useState(false);
   const [description, setDescription] = useState([]);
-  const [latitude, setLatitude] = useState('')
-  const [longitude, setLongitude] = useState('')
-  console.log('value', value);
-  console.log('description', description);
-  console.log('latitude', latitude);
-  console.log('longitude', longitude);
-  console.log('address', address);
-
-
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const dispatch = useDispatch();
   useEffect(() => {
     const emailcheck = validateEmail(email);
     const phonecheck = validatePhone(phone);
     const passcheck = checkpass(password);
     !email ||
-      !phone ||
-      !rePassword ||
-      !phone ||
-      !password ||
-      !emailcheck ||
-      !phonecheck ||
-      !name ||
-      !address ||
-      !value ||
-      passcheck
+    !phone ||
+    !rePassword ||
+    !phone ||
+    !password ||
+    !emailcheck ||
+    !phonecheck ||
+    !name ||
+    !address ||
+    !value ||
+    passcheck ||
+    value.length < 1
       ? setCorrect(false)
       : setCorrect(true);
   }, [email, password, phone, rePassword, address, value]);
@@ -77,44 +83,28 @@ const RegisterScreen = ({ navigation }) => {
   const checkrepass = (pass, repass) => {
     return pass == repass ? null : 'Mật khẩu không khớp';
   };
-  const checkCategory = data => {
-    return data ? null : 'Chưa chọn loại cửa hàng';
-  };
-
-  const handleRegister = async () => {
-    setIsLoading(true);
-    try {
-      const response = await AxiosInstance().post('/users/register', {
-        email,
-        password,
-        phone,
-        name,
-        // gender: 'male',
-        role: 'shopOwner',
-        shopCategory_ids: value,
-        address,
-        latitude,
-        longitude,
-        // birthDate: new Date('2000-01-01'),
-      });
-      if (response.status == true) {
-        ToastAndroid.show('Thành công', ToastAndroid.SHORT);
-        setIsLoading(false);
-        // navigation.navigate('Login');
-        return response.data;
-      } else {
-        console.log(error);
-      }
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
+  const gotoAuthentic = () => {
+    const body = {
+      email,
+      password,
+      phone,
+      name,
+      role: 'shopOwner',
+      shopCategory_ids: value,
+      address,
+      latitude,
+      longitude,
+    };
+    if (body) {
+      navigation.navigate('Authentic', {body});
     }
   };
+
 
   const getCategories = async () => {
     try {
       setIsLoading(true);
-      const response = await AxiosInstance().get('/shopCategories')
+      const response = await AxiosInstance().get('/shopCategories');
       if (response.status == true) {
         const categories = response.data.map(item => ({
           label: item.name, // Chuyển đổi dữ liệu thành định dạng mà MultiSelect yêu cầu
@@ -147,20 +137,19 @@ const RegisterScreen = ({ navigation }) => {
           description: encodeURIComponent(address),
         });
         // console.log('geocoding', geocoding.results[0].formatted_address);
-        setLatitude(geocoding.results[0].geometry.location.lat)
-        setLongitude(geocoding.results[0].geometry.location.lng)
-
+        setLatitude(geocoding.results[0].geometry.location.lat);
+        setLongitude(geocoding.results[0].geometry.location.lng);
       }
     } catch (error) {
       console.log('error', error);
     }
   };
 
-  const updateSearch = (text) => {
+  const updateSearch = text => {
     setAddress(text);
-    setIsShowAddress(true)
+    setIsShowAddress(true);
   };
-  const handleAddressSelect = async (item) => {
+  const handleAddressSelect = async item => {
     setAddress(item.description);
     setIsShowAddress(false);
     await getGeocoding();
@@ -169,19 +158,21 @@ const RegisterScreen = ({ navigation }) => {
     if (address.length >= 1) {
       getPlacesAutocomplete();
     } else {
-      setIsShowAddress(false)
+      setIsShowAddress(false);
     }
   }, [address]);
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}) => {
     return (
-      <TouchableOpacity style={{ paddingTop: 10 }} onPress={() => handleAddressSelect(item)}>
+      <TouchableOpacity
+        style={{paddingTop: 10}}
+        onPress={() => handleAddressSelect(item)}>
         <TextComponent text={item.description} />
         <SpaceComponent height={10} />
         <LineComponent />
-      </TouchableOpacity >
+      </TouchableOpacity>
     );
-  }
+  };
 
   return (
     <ContainerComponent isScroll={true} styles={globalStyle.container}>
@@ -210,8 +201,8 @@ const RegisterScreen = ({ navigation }) => {
       />
       <SpaceComponent height={30} />
       <InputComponent
-        label={'Họ tên'}
-        placeholder={'Nhập họ tên'}
+        label={'Tên cửa hàng'}
+        placeholder={'Tên cửa hàng'}
         value={name}
         onChangeText={text => setName(text)}
         error={name ? null : 'Thiếu thông tin!'}
@@ -229,6 +220,7 @@ const RegisterScreen = ({ navigation }) => {
         label={'Số điện thoại'}
         placeholder={'Nhập số điện thoại'}
         value={phone}
+        keyboardType={'numeric'}
         onChangeText={text => setPhone(text)}
         error={phone ? checkPhone(phone) : 'Thiếu thông tin!'}
       />
@@ -260,45 +252,51 @@ const RegisterScreen = ({ navigation }) => {
         value={address}
         onChangeText={updateSearch}
       />
-      {
-        isShowAddress &&
+      {isShowAddress && (
         <FlatList
           scrollEnabled={false}
           data={description}
           renderItem={renderItem}
-        // style={{ maxHeight: 200 }}
+          // style={{ maxHeight: 200 }}
         />
-      }
+      )}
       <SpaceComponent height={20} />
-      {category && <MultiSelect
-        style={styles.dropdown}
-        placeholderStyle={styles.placeholder}
-        selectedTextStyle={styles.selectedTextStyle}
-        iconStyle={{ tintColor: 'black' }}
-        data={category}
-        maxHeight={300}
-        labelField="label"
-        valueField="value"
-        placeholder={'Chọn loại cửa hàng'}
-        value={value}
-        onChange={item => {
-          setValue(item);
-        }}
-        renderSelectedItem={(item, unSelect) => (
-          <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
-            <View style={styles.selectedStyle}>
-              <TextComponent styles={styles.textSelectedStyle} text={item.label} fontsize={14} />
-              <Trash color="black" size={17} />
-            </View>
-          </TouchableOpacity>
-        )}
-      />}
+      {category && (
+        <MultiSelect
+          style={styles.dropdown}
+          iconStyle={{tintColor: 'black'}}
+          data={category}
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder={'Chọn loại cửa hàng'}
+          selectedTextStyle={{color: appColor.text}}
+          itemTextStyle={{color: appColor.text}}
+          placeholderStyle={{color: appColor.subText}}
+          value={value}
+          onChange={item => {
+            setValue(item);
+          }}
+          renderSelectedItem={(item, unSelect) => (
+            <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
+              <View style={styles.selectedStyle}>
+                <TextComponent
+                  styles={styles.textSelectedStyle}
+                  text={item.label}
+                  fontsize={14}
+                />
+                <Trash color="black" size={17} />
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      )}
       <SpaceComponent height={30} />
       <ButtonComponent
         text={'Tạo tài khoản'}
         color={appColor.white}
-        onPress={correct ? handleRegister : null}
-        styles={{ opacity: correct ? 1 : 0.5 }}
+        onPress={correct ? gotoAuthentic : null}
+        styles={{opacity: correct ? 1 : 0.5}}
       />
       <SpaceComponent height={20} />
       <ButtonComponent
@@ -364,14 +362,14 @@ const styles = StyleSheet.create({
 var DATA = [
   {
     label: 'Cửa hàng thời trang',
-    value: '1'
+    value: '1',
   },
   {
     label: 'Cửa hàng thực phẩm',
-    value: '2'
+    value: '2',
   },
   {
     label: 'Cửa hàng điện thoại',
-    value: '3'
-  }
-]
+    value: '3',
+  },
+];

@@ -6,11 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
   ToastAndroid,
+  ScrollView,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import HeaderComponent from '../../components/HeaderComponent';
 import {appColor} from '../../constants/appColor';
-
+import {MultiSelect} from 'react-native-element-dropdown';
 import InputFood1 from './ComposenentShopOwner/InputFood1';
 import TextComponent from '../../components/TextComponent';
 import InputFood2 from './ComposenentShopOwner/InputFood2';
@@ -19,17 +20,29 @@ import SelectImage from './ComposenentShopOwner/SelectImage';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   AddProduct,
+  DeleteProduct,
   GetProduct,
+  GetProductCategories,
   UpdateProduct,
 } from '../../Redux/Reducers/ShopOwnerReducer';
 import {useNavigation} from '@react-navigation/native';
+import {Trash} from 'iconsax-react-native';
+import ModalComponent from './ComposenentShopOwner/ModalComponent';
+import {uploadImageToCloudinary} from './ComposenentShopOwner/UploadImage';
+import LoadingModal from '../../modal/LoadingModal';
+import {handleChangeText} from '../../utils/Validators';
 
 const EditFood = ({route}) => {
-  const navigation = useNavigation();
-  const {updateStatus, productStatus, AddProductStatus, ProductCategoriesData} =
-    useSelector(state => state.shopowner); //data&status getshipper
-  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const {item} = route.params || {}; // Sử dụng || để đảm bảo item không phải là null
+  const navigation = useNavigation();
+  const {
+    updateStatus,
+    productStatus,
+    AddProductStatus,
+    ProductCategoriesData,
+    DeleteProductStatus,
+  } = useSelector(state => state.shopowner); //data&status getshipper
+  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const [name, setName] = useState(item?.name ?? null);
   const [price, setPrice] = useState(item?.price.toString() ?? null);
   const [image, setImage] = useState(item?.images[0] ?? null);
@@ -37,15 +50,23 @@ const EditFood = ({route}) => {
   const [category, setCategory] = useState(
     item?.categories[0] ?? ProductCategoriesData[0],
   ); //nhóm
-  const [status, setStatus] = useState(state[0].value);
   const [IsSheetOpen, setIsSheetOpen] = useState(false);
   const [click, setclick] = useState(false);
   const [correct, setCorrect] = useState(item ? true : false);
   const dispatch = useDispatch();
+  const [mycategory, setMyCategory] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false); //modal huỷ
+  const [isLoading, setIsLoading] = useState(false);
 
+  //lọc nhóm hiện tại lấy id cho vào mycategory
   useEffect(() => {
-    console.log(JSON.stringify(category, null, 2));
-  }, [category]);
+    if (item) {
+      const idcateproduct = item.categories.map(item => {
+        return item.categoryProduct_id;
+      });
+      setMyCategory(idcateproduct);
+    }
+  }, [item]);
 
   //lấy ảnh sau nhận ảnh bên SelectImage
   useEffect(() => {
@@ -54,40 +75,53 @@ const EditFood = ({route}) => {
     }
   }, [imagePath]);
 
-  const update = () => {
+  //thực hiện cập nhật
+  const update = async () => {
     setclick(true);
     const body = {
       name: name,
       price: price,
-      //status: status,
-      //image: await uploadImageToCloudinary(imagePath),
+      category_ids: mycategory,
+      //shopOwner_id:user._id
+      images: await uploadImageToCloudinary(imagePath),
     };
     dispatch(UpdateProduct({id: item._id, data: body}));
   };
-
-  const add = () => {
+  //thực hiện thêm
+  const add = async () => {
     setclick(true);
     const body = {
       name: name,
       price: price,
-      images: [image],
-      categories: [category._id],
+      images: await uploadImageToCloudinary(imagePath),
+      categories: mycategory,
       description: 'Mô tả sản phẩm',
       shopOwner: user._id,
     };
-    console.log(body);
     dispatch(AddProduct({data: body}));
   };
+  //thực hiện xoá
+  const del = () => {
+    setclick(true);
+    dispatch(DeleteProduct({id: item._id}));
+  };
+
   //khi cap nhat or add thanh cong
   useEffect(() => {
-    if (updateStatus == 'succeeded' || AddProductStatus == 'succeeded') {
+    if (
+      updateStatus == 'succeeded' ||
+      DeleteProductStatus == 'succeeded' ||
+      AddProductStatus == 'succeeded'
+    ) {
+      setModalVisible(false);
       dispatch(GetProduct(user._id));
     }
-  }, [updateStatus, AddProductStatus]);
+  }, [updateStatus, DeleteProductStatus, AddProductStatus]);
 
   //khi goi lai danh sach san pham thanh cong
   useEffect(() => {
     if (productStatus == 'succeeded' && click) {
+      setIsLoading(false);
       navigation.goBack();
       setclick(false);
       ToastAndroid.show('Thành công', ToastAndroid.SHORT);
@@ -96,11 +130,13 @@ const EditFood = ({route}) => {
 
   //kiem tra da dien day du thong tin chua
   useEffect(() => {
-    name && price ? setCorrect(true) : setCorrect(false);
-  }, [name, price]);
+    name && price && image && mycategory.length >= 1
+      ? setCorrect(true)
+      : setCorrect(false);
+  }, [name, price, image, mycategory]);
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {/*header */}
       <HeaderComponent text={item ? 'Sửa món' : 'Thêm món'} isback={true} />
       {/*body */}
@@ -138,28 +174,40 @@ const EditFood = ({route}) => {
         />
         <InputFood1
           title={'Giá bán'}
-          value={price}
+          value={price ? handleChangeText(price) : price}
           onChangeText={text => setPrice(text)}
+          keyboardType="numeric"
         />
-        <InputFood2
-          text={'Nhóm'}
-          data={item ? item.categories : ProductCategoriesData}
-          value={item ? category.categoryProduct_name : category.name}
-          labelField={item ? 'categoryProduct_name' : 'name'}
+        <TextComponent text={'NHÓM'} styles={{width: '89%', marginTop: '5%'}} />
+        <MultiSelect
+          style={styles.multiinput}
+          data={ProductCategoriesData}
+          labelField="name"
+          valueField="_id"
+          value={mycategory ?? 'trống'}
+          selectedTextStyle={{color: appColor.text}}
+          itemTextStyle={{color: appColor.text}}
+          placeholderStyle={{color: appColor.subText}}
+          placeholder={'Chọn loại bán hàng...'}
           onChange={item => {
-            setCategory(item);
+            setMyCategory(item);
           }}
-        />
-        <InputFood2
-          text={'trạng thái'}
-          data={state}
-          value={status}
-          onChange={item => {
-            setStatus(item.value);
-          }}
+          renderSelectedItem={(item, unSelect) => (
+            <TouchableOpacity
+              onPress={() => unSelect && unSelect(item)}
+              activeOpacity={0.8}>
+              <View style={styles.selectedStyle}>
+                <TextComponent
+                  styles={styles.textSelectedStyle}
+                  text={item.name}
+                  fontsize={14}
+                />
+                <Trash color="black" size={17} />
+              </View>
+            </TouchableOpacity>
+          )}
         />
       </View>
-
       {/*bottom*/}
       {/*hiện yêu cầu thêm nếu khôg có item, có thì là xoá&sửa */}
       <View style={styles.bottom}>
@@ -170,6 +218,9 @@ const EditFood = ({route}) => {
               width={'45%'}
               backgroundColor={appColor.white}
               borderColor={appColor.white}
+              onPress={() => {
+                setModalVisible(true);
+              }}
             />
             <ButtonComponent
               text={'Sửa món'}
@@ -177,17 +228,23 @@ const EditFood = ({route}) => {
               color={appColor.white}
               styles={{opacity: correct ? 1 : 0.5}}
               onPress={() => {
-                correct ? update() : null;
+                if (correct) {
+                  update();
+                  setIsLoading(true);
+                }
               }}
             />
           </>
         ) : (
           <ButtonComponent
-            text={'Yêu cầu thêm'}
+            text={'Thêm'}
             color={appColor.white}
             styles={{opacity: correct ? 1 : 0.5}}
             onPress={() => {
-              correct ? add() : null;
+              if (correct) {
+                add();
+                setIsLoading(true);
+              }
             }}
           />
         )}
@@ -198,7 +255,18 @@ const EditFood = ({route}) => {
           setIsSheetOpen={setIsSheetOpen}
         />
       )}
-    </View>
+      {modalVisible && (
+        <ModalComponent
+          setModalVisible={setModalVisible}
+          Presscancel={() => setModalVisible(false)}
+          Pressok={() => {
+            del();
+          }}
+          titile={'Xác nhận xoá'}
+        />
+      )}
+      <LoadingModal visible={isLoading} />
+    </ScrollView>
   );
 };
 
@@ -206,13 +274,14 @@ export default EditFood;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: appColor.white,
-    flex: 1,
+    flexGrow: 1,
     padding: '5%',
     paddingTop: '12%',
   },
   body: {
     alignItems: 'center',
     flex: 4,
+    backgroundColor: appColor.white,
   },
   boximg: {
     marginTop: '2%',
@@ -249,11 +318,49 @@ const styles = StyleSheet.create({
     borderColor: appColor.lightgray,
   },
   bottom: {
-    flex: 1,
+    flex: 0.4,
     alignItems: 'flex-end',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 20,
+    width: '100%',
+    marginTop: '3%',
+    paddingBottom: '3%',
+    backgroundColor: appColor.white,
+  },
+  multiinput: {
+    width: '90%',
+    marginTop: 10,
+    backgroundColor: appColor.white,
+    borderWidth: 1,
+    marginBottom: 10,
+    borderRadius: 10,
+    padding: 18,
+    height: 58,
+    color: appColor.text,
+    borderColor: appColor.lightgray,
+  },
+  selectedStyle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 14,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    marginTop: '3%',
+    marginRight: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  textSelectedStyle: {
+    marginRight: 5,
   },
 });
 //data cho dropdown

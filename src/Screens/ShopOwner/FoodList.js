@@ -18,7 +18,7 @@ import TextComponent from '../../components/TextComponent';
 
 const FoodList = () => {
   const navigation = useNavigation();
-  const {getproductData, productStatus,getData} = useSelector(state => state.shopowner); //data&status getshipper
+  const {getproductData, productStatus,getData} = useSelector(state => state.shopowner); 
   const [Food, setfood] = useState(null);
 
   //set data khi vừa vào component
@@ -26,7 +26,6 @@ const FoodList = () => {
     if (productStatus == 'succeeded') {
       setfood(getproductData);
     }
-    console.log(getData.shopCategory)
   }, [productStatus]);
 
   const renderItem = ({item}) => {
@@ -49,11 +48,6 @@ const FoodList = () => {
           <TextComponent
             text={formatCurrency(price)}
             color={appColor.text}
-            fontfamily={fontFamilies.bold}
-          />
-          <TextComponent
-            text={description}
-            color={appColor.primary}
             fontfamily={fontFamilies.bold}
           />
         </View>
@@ -100,7 +94,8 @@ const styles = StyleSheet.create({
     padding: '2%',
     borderRadius: 10,
     alignSelf: 'center',
-    marginBottom: '5%',
+    marginBottom: '3%',
+    marginTop:'2%'
   },
   boximg: {
     marginTop: '2%',

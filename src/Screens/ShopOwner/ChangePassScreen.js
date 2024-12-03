@@ -1,4 +1,4 @@
-import {View, StyleSheet, ToastAndroid} from 'react-native';
+import {View, StyleSheet, ToastAndroid, ScrollView} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import HeaderComponent from '../../components/HeaderComponent';
 import {appColor} from '../../constants/appColor';
@@ -10,15 +10,16 @@ import {logout} from '../../Redux/Reducers/LoginSlice';
 import LoadingModal from '../../modal/LoadingModal';
 import TextComponent from '../../components/TextComponent';
 
-
 const ChangePassScreen = () => {
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const {ChangePasswordStatus} = useSelector(state => state.shopowner);
   const [oldpass, setOldpass] = useState(null);
   const [newpass, setNewpass] = useState(null);
+  const [repass, setRepass] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [correct, setcorrect] = useState(false);
   const dispatch = useDispatch();
-  
+
   const changepass = () => {
     const body = {
       email: user.email,
@@ -30,7 +31,7 @@ const ChangePassScreen = () => {
   //
   useEffect(() => {
     if (ChangePasswordStatus == 'succeeded' && isLoading) {
-      ToastAndroid.show('Thành công!, Hãy đăng nhập lại', ToastAndroid.SHORT);
+      ToastAndroid.show('Thành công! Hãy đăng nhập lại', ToastAndroid.SHORT);
       dispatch(logout());
       setIsLoading(false);
     } else if (ChangePasswordStatus == 'failed' && isLoading) {
@@ -38,10 +39,15 @@ const ChangePassScreen = () => {
       setIsLoading(false);
     }
   }, [ChangePasswordStatus]);
+  useEffect(() => {
+    oldpass && newpass && repass && repass == newpass
+      ? setcorrect(true)
+      : setcorrect(false);
+  }, [oldpass, newpass, repass]);
   return (
     <View style={styles.container}>
       <HeaderComponent isback={true} text={'Đổi mật khẩu'} />
-      <View style={{flex: 1}}>
+      <ScrollView style={{flex: 1}}>
         <TextInputComponent
           text={'Mật khẩu cũ'}
           value={oldpass}
@@ -54,19 +60,27 @@ const ChangePassScreen = () => {
           onChangeText={text => setNewpass(text)}
           isPassword={true}
         />
+        <TextInputComponent
+          text={'Xác nhận mật khẩu mới'}
+          value={repass}
+          onChangeText={text => setRepass(text)}
+          isPassword={true}
+          error={repass != newpass ? 'Mật khẩu không khớp' : null}
+        />
         <TextComponent text="* Đổi mật khẩu thành công, tài khoản sẽ đăng xuất" />
-      </View>
+      </ScrollView>
 
       <ButtonComponent
         text={'Thay đổi'}
         color={appColor.white}
         height={51}
         onPress={() => {
-          {
+          if (correct) {
             changepass();
             setIsLoading(true);
           }
         }}
+        styles={{opacity: correct ? 1 : 0.5}}
       />
       <LoadingModal visible={isLoading} />
     </View>

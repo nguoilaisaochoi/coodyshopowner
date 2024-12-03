@@ -3,17 +3,20 @@ import React from 'react';
 import TextComponent from '../../../components/TextComponent';
 import {appColor} from '../../../constants/appColor';
 
-const InputFood1 = ({title, value, onChangeText}) => {
+const InputFood1 = ({title, value, onChangeText,keyboardType}) => {
   return (
     <View style={styles.infofood}>
       <TextComponent
         text={title}
+        color={appColor.text}
         styles={{width: '28%', textTransform: 'uppercase'}}
       />
       <TextInput
         style={styles.input}
         value={value}
+        color={appColor.text}
         onChangeText={onChangeText}
+        keyboardType={keyboardType ?? 'default'}
       />
     </View>
   );

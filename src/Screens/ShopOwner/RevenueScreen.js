@@ -10,6 +10,7 @@ import Info4txtComponent from './ComposenentShopOwner/Info4txtComponent';
 import {formatCurrency} from '../../utils/Validators';
 import {useDispatch, useSelector} from 'react-redux';
 import {GetRevenue} from '../../Redux/Reducers/ShopOwnerReducer';
+import Customday from './ComposenentShopOwner/Customday';
 
 const RevenueScreen = () => {
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
@@ -20,20 +21,23 @@ const RevenueScreen = () => {
   const [Data, setData] = useState(null); //data mẫu
   const dispath = useDispatch();
   const [refreshing, setRefreshing] = useState(false);
-
+  const [modalVisible, setModalVisible] = useState(false); //modal huỷ
+  const [fromday, setfromday] = useState(null); //bật/tắt DateTimePicker
+  const [today, settoday] = useState(null); //bật/tắt DateTimePicker
   //call api
   const fetchRevenue = () => {
     setRefreshing(true);
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1);
-    const day = String(currentDate.getDate());
-    const formattedDate = `${year}/${month}/${day}`;
-    dispath(GetRevenue({id: user._id, data: formattedDate, date: value}));
+    dispath(
+      GetRevenue({id: user._id, data: formattedDay(new Date()), date: value}),
+    );
   };
 
   useEffect(() => {
-    fetchRevenue();
+    if (value != 'custom_day') {
+      fetchRevenue();
+    } else {
+      setModalVisible(true);
+    }
   }, [value]);
 
   //status get rev
@@ -45,6 +49,15 @@ const RevenueScreen = () => {
       setRefreshing(false); // Kết thúc làm mới
     }
   }, [getRevenueStatus]);
+
+  //chuyen ngay sang y/m/d
+  const formattedDay = date => {
+    const currentDate = new Date(date);
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1);
+    const day = String(currentDate.getDate());
+    return `${year}/${month}/${day}`;
+  };
 
   //ngay : (gio)
   const formattedDate = orderDate => {
@@ -104,7 +117,16 @@ const RevenueScreen = () => {
       </View>
     );
   };
-
+  //canncellayout
+  const canncellayout = () => {
+    setModalVisible(false);
+    setValue('day');
+  };
+  //tim ngay tuy chon
+  const customdaycall = () => {
+    setModalVisible(false);
+    console.log(formattedDay(fromday)+"--"+formattedDay(today))
+  };
   return (
     <ContainerComponent styles={globalStyle.container}>
       <Dropdown
@@ -212,6 +234,20 @@ const RevenueScreen = () => {
           />
         </View>
       )}
+      {modalVisible && (
+        <Customday
+          Presscancel={() => {
+            canncellayout();
+          }}
+          Pressok={() => {
+            customdaycall();
+          }}
+          fromday={fromday}
+          today={today}
+          setfromday={setfromday}
+          settoday={settoday}
+        />
+      )}
     </ContainerComponent>
   );
 };
@@ -222,7 +258,7 @@ const styles = StyleSheet.create({
   dropdown: {
     backgroundColor: appColor.primary,
     padding: 13,
-    width: '42%',
+    width: '46%',
     borderRadius: 10,
   },
   placeholder: {
@@ -355,4 +391,5 @@ const date = [
   {label: 'Theo ngày', value: 'day'},
   {label: 'Theo tuần', value: 'week'},
   {label: 'Theo tháng', value: 'month'},
+  {label: 'Tùy chỉnh ngày', value: 'custom_day'},
 ];

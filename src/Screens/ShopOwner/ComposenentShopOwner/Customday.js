@@ -28,7 +28,6 @@ const Customday = ({
       }
       setshowPicker(false);
     }
-    setshowPicker(false);
   };
   useEffect(() => {
     if (fromday && today) {

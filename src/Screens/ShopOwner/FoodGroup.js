@@ -10,33 +10,83 @@ import React, {useEffect, useState} from 'react';
 import {appColor} from '../../constants/appColor';
 
 import {useNavigation} from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import TextComponent from '../../components/TextComponent';
+import ModalComponent from './ComposenentShopOwner/ModalComponent';
+import LoadingModal from '../../modal/LoadingModal';
+import {
+  GetProductCategories,
+  RestoreProductCate,
+} from '../../Redux/Reducers/ShopOwnerReducer';
 
 const FoodGroup = () => {
-  const {getData,ProductCategoriesData} = useSelector(state => state.shopowner); 
+  const {
+    ProductCategoriesData,
+    ProductCategoriesStatus,
+    RestoreProductCateStatus,
+  } = useSelector(state => state.shopowner);
+  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const navigation = useNavigation();
- 
+  const dispatch = useDispatch();
+  const [modalVisible, setModalVisible] = useState(false); //modal huỷ
+  const [idGroup, setIdGroup] = useState(null); //lấy id group
+  const [Group, setGroup] = useState(null); //lấy id group
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (ProductCategoriesStatus == 'succeeded') {
+      setGroup(ProductCategoriesData);
+      setModalVisible(false);
+      setIsLoading(false);
+    }
+  }, [ProductCategoriesStatus]);
+
+  //khoi phuc mon
+  const restore = () => {
+    setIsLoading(true);
+    dispatch(RestoreProductCate({id: idGroup}));
+  };
+
+  //kiem tra khoi phuc
+  useEffect(() => {
+    if (RestoreProductCateStatus == 'succeeded' && isLoading) {
+      dispatch(GetProductCategories(user._id));
+    }
+  }, [RestoreProductCateStatus]);
+  
+  //kiem tra truoc khi chuyen navigate
+  const gotonavigate = item => {
+    if (item.isDeleted) {
+      setModalVisible(true);
+      setIdGroup(item._id);
+    } else {
+      navigation.navigate('GroupFoodEdit', {item: item});
+    }
+  };
+
   const renderItem = ({item}) => {
     return (
       <TouchableOpacity
-        style={styles.item}
+        style={[styles.item, {opacity: item.isDeleted ? 0.7 : 1}]}
         activeOpacity={0.8}
         onPress={() => {
-          navigation.navigate('GroupFoodEdit', {item: item});
+          gotonavigate(item);
         }}>
         <TextComponent text={item.name} />
-        <Image
-          style={styles.img}
-          source={require('../../assets/images/shopowner/edit.png')}
-        />
+        {!item.isDeleted && (
+          <Image
+            style={styles.img}
+            source={require('../../assets/images/shopowner/edit.png')}
+          />
+        )}
       </TouchableOpacity>
     );
   };
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={ProductCategoriesData}
+        data={Group}
         renderItem={renderItem}
         keyExtractor={item => item._id}
       />
@@ -51,6 +101,17 @@ const FoodGroup = () => {
           source={require('../../assets/images/shopowner/add.png')}
         />
       </TouchableOpacity>
+      {modalVisible && (
+        <ModalComponent
+          setModalVisible={setModalVisible}
+          Presscancel={() => setModalVisible(false)}
+          Pressok={() => {
+            restore();
+          }}
+          titile={'Xác nhận khôi phục'}
+        />
+      )}
+      <LoadingModal visible={isLoading} />
     </View>
   );
 };
@@ -75,7 +136,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop:'2%'
+    marginTop: '2%',
   },
   img: {
     width: '8%',

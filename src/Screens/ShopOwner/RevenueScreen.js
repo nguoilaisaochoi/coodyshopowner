@@ -9,21 +9,28 @@ import TextComponent from '../../components/TextComponent';
 import Info4txtComponent from './ComposenentShopOwner/Info4txtComponent';
 import {formatCurrency} from '../../utils/Validators';
 import {useDispatch, useSelector} from 'react-redux';
-import {GetRevenue} from '../../Redux/Reducers/ShopOwnerReducer';
+import {
+  GetCustomRevenue,
+  GetRevenue,
+} from '../../Redux/Reducers/ShopOwnerReducer';
 import Customday from './ComposenentShopOwner/Customday';
 
 const RevenueScreen = () => {
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
-  const {getRevenueStatus, getRevenueData} = useSelector(
-    state => state.shopowner,
-  );
+  const {
+    getRevenueStatus,
+    getRevenueData,
+    GetCustomRevenueStatus,
+    GetCustomRevenueData,
+  } = useSelector(state => state.shopowner);
   const [value, setValue] = useState(date[0].value); //select dropdown
   const [Data, setData] = useState(null); //data mẫu
   const dispath = useDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
-  const [fromday, setfromday] = useState(null); //bật/tắt DateTimePicker
-  const [today, settoday] = useState(null); //bật/tắt DateTimePicker
+  const [fromday, setfromday] = useState(null);
+  const [today, settoday] = useState(null);
+
   //call api
   const fetchRevenue = () => {
     setRefreshing(true);
@@ -31,7 +38,7 @@ const RevenueScreen = () => {
       GetRevenue({id: user._id, data: formattedDay(new Date()), date: value}),
     );
   };
-
+  //co phai chon customday k?
   useEffect(() => {
     if (value != 'custom_day') {
       fetchRevenue();
@@ -40,7 +47,7 @@ const RevenueScreen = () => {
     }
   }, [value]);
 
-  //status get rev
+  //status lay doanh thu
   useEffect(() => {
     if (getRevenueStatus === 'succeeded') {
       setData(getRevenueData);
@@ -49,6 +56,17 @@ const RevenueScreen = () => {
       setRefreshing(false); // Kết thúc làm mới
     }
   }, [getRevenueStatus]);
+
+  //status lay doanh thu tuy chinh
+  useEffect(() => {
+    if (GetCustomRevenueStatus === 'succeeded') {
+      setData(GetCustomRevenueData);
+      console.log('done');
+    }
+    if (refreshing) {
+      setRefreshing(false); // Kết thúc làm mới
+    }
+  }, [GetCustomRevenueStatus]);
 
   //chuyen ngay sang y/m/d
   const formattedDay = date => {
@@ -122,10 +140,17 @@ const RevenueScreen = () => {
     setModalVisible(false);
     setValue('day');
   };
+
   //tim ngay tuy chon
   const customdaycall = () => {
     setModalVisible(false);
-    console.log(formattedDay(fromday)+"--"+formattedDay(today))
+    dispath(
+      GetCustomRevenue({
+        id: user._id,
+        startDate: formattedDay(fromday),
+        endDate: formattedDay(today),
+      }),
+    );
   };
   return (
     <ContainerComponent styles={globalStyle.container}>
@@ -160,13 +185,21 @@ const RevenueScreen = () => {
               source={require('../../assets/images/shopowner/wallet.png')}
             />
             <TextComponent
-              text={new Date().toLocaleDateString('vi-VN')}
+              text={new Date(Data?.startDate ?? null).toLocaleDateString(
+                'vi-VN',
+                {timeZone: 'UTC'},
+              )}
               fontsize={value != 'day' ? 16 : 18}
               fontFamily={fontFamilies.bold}
             />
             {value != 'day' && (
               <TextComponent
-                text={'-' + new Date(Data.endDate).toLocaleDateString('vi-VN')}
+                text={
+                  '-' +
+                  new Date(Data.endDate).toLocaleDateString('vi-VN', {
+                    timeZone: 'UTC',
+                  })
+                }
                 fontsize={16}
                 fontFamily={fontFamilies.bold}
               />

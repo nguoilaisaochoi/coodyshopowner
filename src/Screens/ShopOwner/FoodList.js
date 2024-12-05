@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
+  ToastAndroid,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {appColor} from '../../constants/appColor';
@@ -13,28 +14,66 @@ import {appColor} from '../../constants/appColor';
 import {fontFamilies} from '../../constants/fontFamilies';
 import {formatCurrency} from '../../utils/Validators';
 import {useNavigation} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import TextComponent from '../../components/TextComponent';
+import ModalComponent from './ComposenentShopOwner/ModalComponent';
+import {
+  GetProduct,
+  RestoreProduct,
+} from '../../Redux/Reducers/ShopOwnerReducer';
+import LoadingModal from '../../modal/LoadingModal';
 
 const FoodList = () => {
+  const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const navigation = useNavigation();
-  const {getproductData, productStatus,getData} = useSelector(state => state.shopowner); 
+  const {getproductData, productStatus, RestoreProductStatus} = useSelector(
+    state => state.shopowner,
+  );
+  const dispatch = useDispatch();
   const [Food, setfood] = useState(null);
-
+  const [modalVisible, setModalVisible] = useState(false); //modal huỷ
+  const [idProduct, setIdProduct] = useState(null); //lấy id product
+  const [isLoading, setIsLoading] = useState(false);
   //set data khi vừa vào component
   useEffect(() => {
     if (productStatus == 'succeeded') {
       setfood(getproductData);
+      setModalVisible(false);
+      setIsLoading(false);
     }
   }, [productStatus]);
 
+  //check co ngung ban hay chua
+  const gotonavigate = item => {
+    if (item.status == 'Ngừng bán') {
+      setModalVisible(true);
+      setIdProduct(item._id);
+    } else {
+      navigation.navigate('EditFood', {item});
+    }
+  };
+
+  //khoi phuc mon
+  const restore = () => {
+    setIsLoading(true);
+    dispatch(RestoreProduct({id: idProduct}));
+  };
+//kiem tra khoi phuc
+  useEffect(() => {
+    if (RestoreProductStatus == 'succeeded' && isLoading) {
+      dispatch(GetProduct(user._id));
+    }
+  }, [RestoreProductStatus]);
+
   const renderItem = ({item}) => {
-    const {name, price, images, description} = item;
+    const {name, price, images, status} = item;
     return (
       <TouchableOpacity
         style={styles.item}
         activeOpacity={0.8}
-        onPress={() => navigation.navigate('EditFood', {item})}>
+        onPress={() => {
+          gotonavigate(item);
+        }}>
         <View style={styles.boximg}>
           <Image
             style={{flex: 1}}
@@ -44,11 +83,19 @@ const FoodList = () => {
           />
         </View>
         <View style={styles.itemdetail}>
-          <TextComponent text={name} color={appColor.text} />
+          <View>
+            <TextComponent text={name} color={appColor.text} />
+            <TextComponent
+              text={formatCurrency(price)}
+              color={appColor.text}
+              fontfamily={fontFamilies.bold}
+            />
+          </View>
           <TextComponent
-            text={formatCurrency(price)}
-            color={appColor.text}
+            text={status}
+            color={status == 'Còn món' ? 'green' : 'red'}
             fontfamily={fontFamilies.bold}
+            fontsize={15}
           />
         </View>
       </TouchableOpacity>
@@ -72,6 +119,17 @@ const FoodList = () => {
           source={require('../../assets/images/shopowner/add.png')}
         />
       </TouchableOpacity>
+      {modalVisible && (
+        <ModalComponent
+          setModalVisible={setModalVisible}
+          Presscancel={() => setModalVisible(false)}
+          Pressok={() => {
+            restore();
+          }}
+          titile={'Xác nhận khôi phục'}
+        />
+      )}
+      <LoadingModal visible={isLoading} />
     </View>
   );
 };
@@ -95,7 +153,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignSelf: 'center',
     marginBottom: '3%',
-    marginTop:'2%'
+    marginTop: '2%',
   },
   boximg: {
     marginTop: '2%',
@@ -104,7 +162,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 10,
   },
-  itemdetail: {width: '70%', marginLeft: '2%', gap: 10},
+  itemdetail: {
+    width: '70%',
+    marginLeft: '2%',
+    gap: 10,
+  },
   imgadd: {
     width: '14%',
     aspectRatio: 1,

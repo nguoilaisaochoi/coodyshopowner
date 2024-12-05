@@ -31,6 +31,7 @@ import ModalComponent from './ComposenentShopOwner/ModalComponent';
 import {uploadImageToCloudinary} from './ComposenentShopOwner/UploadImage';
 import LoadingModal from '../../modal/LoadingModal';
 import {handleChangeText} from '../../utils/Validators';
+import TextInputComponent from './ComposenentShopOwner/TextInputComponent';
 
 const EditFood = ({route}) => {
   const {item} = route.params || {}; // Sử dụng || để đảm bảo item không phải là null
@@ -53,6 +54,7 @@ const EditFood = ({route}) => {
   const [IsSheetOpen, setIsSheetOpen] = useState(false);
   const [click, setclick] = useState(false);
   const [correct, setCorrect] = useState(item ? true : false);
+  const [description, setDescription] = useState(item?.description ?? null);
   const dispatch = useDispatch();
   const [mycategory, setMyCategory] = useState([]);
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
@@ -82,7 +84,7 @@ const EditFood = ({route}) => {
       name: name,
       price: price,
       category_ids: mycategory,
-      //shopOwner_id:user._id
+      description:description,
       images: await uploadImageToCloudinary(imagePath),
     };
     dispatch(UpdateProduct({id: item._id, data: body}));
@@ -95,7 +97,7 @@ const EditFood = ({route}) => {
       price: price,
       images: await uploadImageToCloudinary(imagePath),
       categories: mycategory,
-      description: 'Mô tả sản phẩm',
+      description: description,
       shopOwner: user._id,
     };
     dispatch(AddProduct({data: body}));
@@ -130,10 +132,10 @@ const EditFood = ({route}) => {
 
   //kiem tra da dien day du thong tin chua
   useEffect(() => {
-    name && price && image && mycategory.length >= 1
+    name && price && image && description && mycategory.length >= 1
       ? setCorrect(true)
       : setCorrect(false);
-  }, [name, price, image, mycategory]);
+  }, [name, price, image, mycategory, description]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -177,6 +179,12 @@ const EditFood = ({route}) => {
           value={price ? handleChangeText(price) : price}
           onChangeText={text => setPrice(text)}
           keyboardType="numeric"
+        />
+        <InputFood1
+          title={'Mô tả'}
+          value={description}
+          onChangeText={text => setDescription(text)}
+          column={true}
         />
         <TextComponent text={'NHÓM'} styles={{width: '89%', marginTop: '5%'}} />
         <MultiSelect

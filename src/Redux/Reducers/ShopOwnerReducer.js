@@ -50,6 +50,17 @@ export const GetRevenue = createAsyncThunk(
   },
 );
 
+//lấy doanh thu tuỳ chỉnh
+export const GetCustomRevenue = createAsyncThunk(
+  'GetCustomRevenue',
+  async ({id, startDate, endDate}) => {
+    const response = await AxiosInstance().get(
+      `shopOwner/${id}/revenue/custom-range?startDate=${startDate}&endDate=${endDate}`,
+    );
+    return response.data;
+  },
+);
+
 //lấy toàn bộ loại shop
 export const GetShopCategories = createAsyncThunk(
   'getshopcategories',
@@ -91,9 +102,20 @@ export const UpdateShop = createAsyncThunk('updateshop', async ({id, data}) => {
 
 //xoá món
 export const DeleteProduct = createAsyncThunk('deleteProduct', async ({id}) => {
-  const response = await AxiosInstance().delete(`products/delete/${id}`);
+  const response = await AxiosInstance().delete(`products/softdelete/${id}`);
   return response.data;
 });
+
+//khôi phục món
+export const RestoreProduct = createAsyncThunk(
+  'restoreProduct',
+  async ({id}) => {
+    const response = await AxiosInstance().put(
+      `products/restore/available/${id}`,
+    );
+    return response.data;
+  },
+);
 
 //thêm nhóm
 export const AddProductCate = createAsyncThunk(
@@ -104,15 +126,27 @@ export const AddProductCate = createAsyncThunk(
   },
 );
 
-//xoá món
+//xoá nhóm món
 export const DeleteProductCate = createAsyncThunk(
   'deleteproductcate',
   async id => {
-    const response = await AxiosInstance().delete(`productCategories/${id}`);
+    const response = await AxiosInstance().delete(
+      `productCategories/softdelete/${id}`,
+    );
     return response.data;
   },
 );
 
+//khôi phục nhóm món
+export const RestoreProductCate = createAsyncThunk(
+  'restoreRestoreProductCate',
+  async ({id}) => {
+    const response = await AxiosInstance().put(
+      `productCategories/restore/available/${id}`,
+    );
+    return response.data;
+  },
+);
 //cập nhật loại của hàng
 export const UpdateProductCate = createAsyncThunk(
   'updateproductcate',
@@ -152,6 +186,10 @@ export const ShopSlice = createSlice({
     DeleteProductCateStatus: 'ide',
     UpdateProductCateData: {},
     UpdateProductCateStatus: 'ide',
+    RestoreProductStatus: 'ide',
+    RestoreProductCateStatus: 'ide',
+    GetCustomRevenueData: {},
+    GetCustomRevenueStatus: 'ide',
   },
   reducers: {},
   extraReducers: builder => {
@@ -319,6 +357,40 @@ export const ShopSlice = createSlice({
       .addCase(UpdateProductCate.rejected, (state, action) => {
         state.UpdateProductCateStatus = 'failed';
         console.error('Lỗi cap nhat nhom' + action.error.message);
+      })
+      //khoi phuc mon
+      .addCase(RestoreProduct.pending, (state, action) => {
+        state.RestoreProductStatus = 'loading';
+      })
+      .addCase(RestoreProduct.fulfilled, (state, action) => {
+        state.RestoreProductStatus = 'succeeded';
+      })
+      .addCase(RestoreProduct.rejected, (state, action) => {
+        state.RestoreProductStatus = 'failed';
+        console.error('Lỗi khoi phuc mon' + action.error.message);
+      })
+      //khoi phuc nhom mon
+      .addCase(RestoreProductCate.pending, (state, action) => {
+        state.RestoreProductCateStatus = 'loading';
+      })
+      .addCase(RestoreProductCate.fulfilled, (state, action) => {
+        state.RestoreProductCateStatus = 'succeeded';
+      })
+      .addCase(RestoreProductCate.rejected, (state, action) => {
+        state.RestoreProductCateStatus = 'failed';
+        console.error('Lỗi khoi phuc nhom mon' + action.error.message);
+      })
+      //lay doanh thu tuy chinh
+      .addCase(GetCustomRevenue.pending, (state, action) => {
+        state.GetCustomRevenueStatus = 'loading';
+      })
+      .addCase(GetCustomRevenue.fulfilled, (state, action) => {
+        state.GetCustomRevenueStatus = 'succeeded';
+        state.GetCustomRevenueData = action.payload;
+      })
+      .addCase(GetCustomRevenue.rejected, (state, action) => {
+        state.GetCustomRevenueStatus = 'failed';
+        console.error('Lỗi lay doanh thu tuy chinh' + action.error.message);
       });
   },
 });

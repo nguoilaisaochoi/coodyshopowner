@@ -14,7 +14,7 @@ import SpaceComponent from '../../components/SpaceComponent';
 import TextInputComponent from './ComposenentShopOwner/TextInputComponent';
 import TextComponent from '../../components/TextComponent';
 
-const ShopCategories = ({navigation}) => {
+const AddAddress = ({navigation}) => {
   const [address, setAddress] = useState('');
   const [isShowAddress, setIsShowAddress] = useState(false);
   const [description, setDescription] = useState([]);
@@ -79,7 +79,7 @@ const ShopCategories = ({navigation}) => {
   );
 };
 
-export default ShopCategories;
+export default AddAddress;
 
 const styles = StyleSheet.create({
   container: {

@@ -155,6 +155,18 @@ export const UpdateProductCate = createAsyncThunk(
     return response.data;
   },
 );
+
+//Mở cửa
+export const GetOnlince = createAsyncThunk('GetOnlince', async id => {
+  const response = await AxiosInstance().put(`shopOwner/open/${id}`);
+  return response.data;
+});
+
+//Đóng cửa
+export const GetOfflince = createAsyncThunk('GetOfflince', async id => {
+  const response = await AxiosInstance().put(`shopOwner/closed/${id}`);
+  return response.data;
+});
 export const ShopSlice = createSlice({
   name: 'shopwner',
   initialState: {
@@ -190,6 +202,8 @@ export const ShopSlice = createSlice({
     RestoreProductCateStatus: 'ide',
     GetCustomRevenueData: {},
     GetCustomRevenueStatus: 'ide',
+    GetOnlinceStatus: 'ide',
+    GetOfflinceStatus: 'ide',
   },
   reducers: {},
   extraReducers: builder => {
@@ -391,6 +405,28 @@ export const ShopSlice = createSlice({
       .addCase(GetCustomRevenue.rejected, (state, action) => {
         state.GetCustomRevenueStatus = 'failed';
         console.error('Lỗi lay doanh thu tuy chinh' + action.error.message);
+      })
+      //mở cửa
+      .addCase(GetOnlince.pending, (state, action) => {
+        state.GetOnlinceStatus = 'loading';
+      })
+      .addCase(GetOnlince.fulfilled, (state, action) => {
+        state.GetOnlinceStatus = 'succeeded';
+      })
+      .addCase(GetOnlince.rejected, (state, action) => {
+        state.GetOnlinceStatus = 'failed';
+        console.error('Lỗi mo cua' + action.error.message);
+      })
+      //đóng cửa
+      .addCase(GetOfflince.pending, (state, action) => {
+        state.GetOfflinceStatus = 'loading';
+      })
+      .addCase(GetOfflince.fulfilled, (state, action) => {
+        state.GetOfflinceStatus = 'succeeded';
+      })
+      .addCase(GetOfflince.rejected, (state, action) => {
+        state.GetOfflinceStatus = 'failed';
+        console.error('Lỗi dong cua' + action.error.message);
       });
   },
 });

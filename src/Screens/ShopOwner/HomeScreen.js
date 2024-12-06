@@ -18,6 +18,7 @@ import ButtonComponent from '../../components/ButtonComponent';
 import {connectSocket, disconnectSocket, getSocket} from '../../socket/socket';
 import {useDispatch, useSelector} from 'react-redux';
 import {
+  GetOfflince,
   GetProduct,
   GetProductCategories,
   GetShop,
@@ -67,6 +68,7 @@ const HomeScreen = () => {
 
     return () => {
       disconnectSocket();
+      dispatch(GetOfflince(user._id))
     };
   }, []);
   //

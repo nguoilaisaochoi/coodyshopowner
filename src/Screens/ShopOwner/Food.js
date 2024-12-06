@@ -12,6 +12,8 @@ import {appInfor} from '../../constants/appInfor';
 import FoodList from './FoodList';
 import FoodGroup from './FoodGroup';
 import TextComponent from '../../components/TextComponent';
+import FoodListdel from './FoodListdel';
+import FoodGroupdel from './FoodGroupdel';
 
 const Food = () => {
   const [selected, setSelected] = useState('Món'); //selected món & nhóm món ăn
@@ -20,7 +22,7 @@ const Food = () => {
   const animatedStyle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
-      width: '50%',
+      width: '25%',
       zIndex: 1,
       transform: [{translateX: transx.value}],
       height: 2,
@@ -29,13 +31,23 @@ const Food = () => {
   });
   //animated
   useEffect(() => {
-    selected == 'Món'
-      ? (transx.value = withTiming(0, {
-          duration: 300,
-        }))
-      : (transx.value = withTiming(appInfor.sizes.width * 0.5, {
-          duration: 300,
-        }));
+    if (selected == 'Món') {
+      transx.value = withTiming(0, {
+        duration: 300,
+      });
+    } else if (selected == 'Món đã xoá') {
+      transx.value = withTiming(appInfor.sizes.width * 0.25, {
+        duration: 300,
+      });
+    }else if(selected=="Nhóm"){
+      transx.value = withTiming(appInfor.sizes.width * 0.5, {
+        duration: 300,
+      });
+    }else{
+      transx.value = withTiming(appInfor.sizes.width * 0.75, {
+        duration: 300,
+      });
+    }
   }, [selected]);
 
   return (
@@ -43,6 +55,7 @@ const Food = () => {
       {/*headner */}
       <View style={styles.header}>
         <Animated.View style={animatedStyle} />
+        {/*món*/}
         <TouchableOpacity
           style={styles.btn}
           onPress={() => {
@@ -54,27 +67,62 @@ const Food = () => {
               fontFamily: fontFamilies.bold,
               color: selected == 'Món' ? appColor.primary : appColor.text,
             }}
-            fontsize={18}
+            fontsize={15}
           />
         </TouchableOpacity>
+        {/*món đã xoá*/}
         <TouchableOpacity
           style={styles.btn}
           onPress={() => {
-            setSelected('Nhóm món ăn');
+            setSelected('Món đã xoá');
           }}>
           <TextComponent
-            text={'Nhóm món ăn'}
+            text={'Món đã xoá'}
             styles={{
               fontFamily: fontFamilies.bold,
               color:
-                selected == 'Nhóm món ăn' ? appColor.primary : appColor.text,
+                selected == 'Món đã xoá' ? appColor.primary : appColor.text,
             }}
-            fontsize={18}
+            fontsize={15}
+          />
+        </TouchableOpacity>
+        {/*nhóm*/}
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => {
+            setSelected('Nhóm');
+          }}>
+          <TextComponent
+            text={'Nhóm'}
+            styles={{
+              fontFamily: fontFamilies.bold,
+              color: selected == 'Nhóm' ? appColor.primary : appColor.text,
+            }}
+            fontsize={15}
+          />
+        </TouchableOpacity>
+        {/*nhóm đã xoá*/}
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => {
+            setSelected('Nhóm đã xoá');
+          }}>
+          <TextComponent
+            text={'Nhóm đã xoá'}
+            styles={{
+              fontFamily: fontFamilies.bold,
+              color:
+                selected == 'Nhóm đã xoá' ? appColor.primary : appColor.text,
+            }}
+            fontsize={15}
           />
         </TouchableOpacity>
       </View>
       {/*body */}
-      {selected == 'Món' ? <FoodList /> : <FoodGroup />}
+      {selected == 'Món' && <FoodList />}
+      {selected == 'Nhóm' && <FoodGroup />}
+      {selected == 'Món đã xoá' && <FoodListdel />}
+      {selected == 'Nhóm đã xoá' && <FoodGroupdel />}
     </View>
   );
 };

@@ -3,16 +3,16 @@ import React from 'react';
 import TextComponent from '../../../components/TextComponent';
 import {appColor} from '../../../constants/appColor';
 
-const InputFood1 = ({title, value, onChangeText,keyboardType}) => {
+const InputFood1 = ({title, value, onChangeText, keyboardType, column}) => {
   return (
-    <View style={styles.infofood}>
+    <View style={[styles.infofood, {flexDirection: column ? 'column' : 'row'}]}>
       <TextComponent
         text={title}
         color={appColor.text}
-        styles={{width: '28%', textTransform: 'uppercase'}}
+        styles={{width: column ? '100%' : '28%', textTransform: 'uppercase'}}
       />
       <TextInput
-        style={styles.input}
+        style={[styles.input, {width: column ? '100%' : '72%'}]}
         value={value}
         color={appColor.text}
         onChangeText={onChangeText}
@@ -29,10 +29,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: '5%',
+    textAlign: 'left',
   },
   input: {
     borderWidth: 1,
-    width: '72%',
     borderRadius: 10,
     borderColor: appColor.lightgray,
     paddingLeft: '3%',

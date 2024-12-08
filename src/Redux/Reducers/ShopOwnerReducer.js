@@ -1,5 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import AxiosInstance from '../../helpers/AxiosInstance';
+import { ToastAndroid } from 'react-native';
 
 //láy thông tin chửa hàng
 export const GetShop = createAsyncThunk('getshop', async id => {
@@ -50,6 +51,17 @@ export const GetRevenue = createAsyncThunk(
   },
 );
 
+//lấy doanh thu tuỳ chỉnh
+export const GetCustomRevenue = createAsyncThunk(
+  'GetCustomRevenue',
+  async ({id, startDate, endDate}) => {
+    const response = await AxiosInstance().get(
+      `shopOwner/${id}/revenue/custom-range?startDate=${startDate}&endDate=${endDate}`,
+    );
+    return response.data;
+  },
+);
+
 //lấy toàn bộ loại shop
 export const GetShopCategories = createAsyncThunk(
   'getshopcategories',
@@ -91,9 +103,20 @@ export const UpdateShop = createAsyncThunk('updateshop', async ({id, data}) => {
 
 //xoá món
 export const DeleteProduct = createAsyncThunk('deleteProduct', async ({id}) => {
-  const response = await AxiosInstance().delete(`products/delete/${id}`);
+  const response = await AxiosInstance().delete(`products/softdelete/${id}`);
   return response.data;
 });
+
+//khôi phục món
+export const RestoreProduct = createAsyncThunk(
+  'restoreProduct',
+  async ({id}) => {
+    const response = await AxiosInstance().put(
+      `products/restore/available/${id}`,
+    );
+    return response.data;
+  },
+);
 
 //thêm nhóm
 export const AddProductCate = createAsyncThunk(
@@ -104,15 +127,27 @@ export const AddProductCate = createAsyncThunk(
   },
 );
 
-//xoá món
+//xoá nhóm món
 export const DeleteProductCate = createAsyncThunk(
   'deleteproductcate',
   async id => {
-    const response = await AxiosInstance().delete(`productCategories/${id}`);
+    const response = await AxiosInstance().delete(
+      `productCategories/softdelete/${id}`,
+    );
     return response.data;
   },
 );
 
+//khôi phục nhóm món
+export const RestoreProductCate = createAsyncThunk(
+  'restoreRestoreProductCate',
+  async ({id}) => {
+    const response = await AxiosInstance().put(
+      `productCategories/restore/available/${id}`,
+    );
+    return response.data;
+  },
+);
 //cập nhật loại của hàng
 export const UpdateProductCate = createAsyncThunk(
   'updateproductcate',
@@ -121,6 +156,18 @@ export const UpdateProductCate = createAsyncThunk(
     return response.data;
   },
 );
+
+//Mở cửa
+export const GetOnlince = createAsyncThunk('GetOnlince', async id => {
+  const response = await AxiosInstance().put(`shopOwner/open/${id}`);
+  return response.data;
+});
+
+//Đóng cửa
+export const GetOfflince = createAsyncThunk('GetOfflince', async id => {
+  const response = await AxiosInstance().put(`shopOwner/closed/${id}`);
+  return response.data;
+});
 export const ShopSlice = createSlice({
   name: 'shopwner',
   initialState: {
@@ -152,6 +199,12 @@ export const ShopSlice = createSlice({
     DeleteProductCateStatus: 'ide',
     UpdateProductCateData: {},
     UpdateProductCateStatus: 'ide',
+    RestoreProductStatus: 'ide',
+    RestoreProductCateStatus: 'ide',
+    GetCustomRevenueData: {},
+    GetCustomRevenueStatus: 'ide',
+    GetOnlinceStatus: 'ide',
+    GetOfflinceStatus: 'ide',
   },
   reducers: {},
   extraReducers: builder => {
@@ -262,7 +315,11 @@ export const ShopSlice = createSlice({
       })
       .addCase(ChangePassword.rejected, (state, action) => {
         state.ChangePasswordStatus = 'failed';
-        console.error('Lỗi doi mk: ' + action.error.message);
+        if (action.error.message == 'Request failed with status code 401') {
+          ToastAndroid.show('Mật khẩu cũ không chính xác', ToastAndroid.SHORT);
+        } else {
+          ToastAndroid.show('Lỗi đổi mật khẩu', ToastAndroid.SHORT);
+        }
       })
       //update categories
       .addCase(UpdateShopCategory.pending, (state, action) => {
@@ -319,6 +376,62 @@ export const ShopSlice = createSlice({
       .addCase(UpdateProductCate.rejected, (state, action) => {
         state.UpdateProductCateStatus = 'failed';
         console.error('Lỗi cap nhat nhom' + action.error.message);
+      })
+      //khoi phuc mon
+      .addCase(RestoreProduct.pending, (state, action) => {
+        state.RestoreProductStatus = 'loading';
+      })
+      .addCase(RestoreProduct.fulfilled, (state, action) => {
+        state.RestoreProductStatus = 'succeeded';
+      })
+      .addCase(RestoreProduct.rejected, (state, action) => {
+        state.RestoreProductStatus = 'failed';
+        console.error('Lỗi khoi phuc mon' + action.error.message);
+      })
+      //khoi phuc nhom mon
+      .addCase(RestoreProductCate.pending, (state, action) => {
+        state.RestoreProductCateStatus = 'loading';
+      })
+      .addCase(RestoreProductCate.fulfilled, (state, action) => {
+        state.RestoreProductCateStatus = 'succeeded';
+      })
+      .addCase(RestoreProductCate.rejected, (state, action) => {
+        state.RestoreProductCateStatus = 'failed';
+        console.error('Lỗi khoi phuc nhom mon' + action.error.message);
+      })
+      //lay doanh thu tuy chinh
+      .addCase(GetCustomRevenue.pending, (state, action) => {
+        state.GetCustomRevenueStatus = 'loading';
+      })
+      .addCase(GetCustomRevenue.fulfilled, (state, action) => {
+        state.GetCustomRevenueStatus = 'succeeded';
+        state.GetCustomRevenueData = action.payload;
+      })
+      .addCase(GetCustomRevenue.rejected, (state, action) => {
+        state.GetCustomRevenueStatus = 'failed';
+        console.error('Lỗi lay doanh thu tuy chinh' + action.error.message);
+      })
+      //mở cửa
+      .addCase(GetOnlince.pending, (state, action) => {
+        state.GetOnlinceStatus = 'loading';
+      })
+      .addCase(GetOnlince.fulfilled, (state, action) => {
+        state.GetOnlinceStatus = 'succeeded';
+      })
+      .addCase(GetOnlince.rejected, (state, action) => {
+        state.GetOnlinceStatus = 'failed';
+        console.error('Lỗi mo cua' + action.error.message);
+      })
+      //đóng cửa
+      .addCase(GetOfflince.pending, (state, action) => {
+        state.GetOfflinceStatus = 'loading';
+      })
+      .addCase(GetOfflince.fulfilled, (state, action) => {
+        state.GetOfflinceStatus = 'succeeded';
+      })
+      .addCase(GetOfflince.rejected, (state, action) => {
+        state.GetOfflinceStatus = 'failed';
+        console.error('Lỗi dong cua' + action.error.message);
       });
   },
 });

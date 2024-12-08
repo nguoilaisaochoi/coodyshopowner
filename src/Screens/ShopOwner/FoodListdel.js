@@ -23,7 +23,7 @@ import {
 } from '../../Redux/Reducers/ShopOwnerReducer';
 import LoadingModal from '../../modal/LoadingModal';
 
-const FoodList = () => {
+const FoodListdel = () => {
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
   const navigation = useNavigation();
   const {getproductData, productStatus, RestoreProductStatus} = useSelector(
@@ -37,15 +37,16 @@ const FoodList = () => {
   //set data khi vừa vào component
   useEffect(() => {
     if (productStatus == 'succeeded') {
-      setfood(getproductData.filter(product => product.status == 'Còn món'));
+      setfood(getproductData.filter(product => product.status == 'Ngừng bán'));
       setModalVisible(false);
       setIsLoading(false);
     }
   }, [productStatus]);
-
+  
   //check co ngung ban hay chua
   const gotonavigate = item => {
-    navigation.navigate('EditFood', {item});
+    setModalVisible(true);
+    setIdProduct(item._id);
   };
 
   //khoi phuc mon
@@ -53,7 +54,7 @@ const FoodList = () => {
     setIsLoading(true);
     dispatch(RestoreProduct({id: idProduct}));
   };
-  //kiem tra khoi phuc
+  //kiem tra khoi phuc nếu khoi phuc thanh cong goi lai ds sp
   useEffect(() => {
     if (RestoreProductStatus == 'succeeded' && isLoading) {
       dispatch(GetProduct(user._id));
@@ -103,17 +104,6 @@ const FoodList = () => {
         renderItem={renderItem}
         keyExtractor={item => item._id}
       />
-      <TouchableOpacity
-        style={styles.imgadd}
-        activeOpacity={0.7}
-        onPress={() => {
-          navigation.navigate('EditFood');
-        }}>
-        <Image
-          style={{width: '100%', resizeMode: 'contain'}}
-          source={require('../../assets/images/shopowner/add.png')}
-        />
-      </TouchableOpacity>
       {modalVisible && (
         <ModalComponent
           setModalVisible={setModalVisible}
@@ -129,7 +119,7 @@ const FoodList = () => {
   );
 };
 
-export default FoodList;
+export default FoodListdel;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: appColor.white,

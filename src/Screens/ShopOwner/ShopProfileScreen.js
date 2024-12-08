@@ -61,8 +61,16 @@ const ShopProfileScreen = ({navigation, route}) => {
   const [correct, setCorrect] = useState(true); //quản lí state khi đúng mới cho cập nhật(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   const [isclick, setisClick] = useState(false); //đã click vào button cập nhật hay chưa
   const [mycategory, setMyCategory] = useState([]);
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
+
+  //lấy id loại khi vào component
+  useEffect(() => {
+    const idcategory = getData.shopCategory.map(item => {
+      return item.shopCategory_id;
+    });
+    setMyCategory(idcategory);
+  }, []);
 
   const update = async () => {
     const body = {
@@ -72,8 +80,8 @@ const ShopProfileScreen = ({navigation, route}) => {
       shopCategory_ids: mycategory,
       openingHours: open,
       closeHours: close,
-      //latitude: latitude,
-      //longitude: longitude,
+      latitude: latitude,
+      longitude: longitude,
       images: await uploadImageToCloudinary(imagePath),
     };
     const body2 = {shopCategory_ids: mycategory};
@@ -96,6 +104,7 @@ const ShopProfileScreen = ({navigation, route}) => {
     }
   }, [UpdateShopStatus, UpdateShopCategoryStatus]);
 
+  //quay ve man hinh truoc do neu cap nhat thanh cong
   useEffect(() => {
     if (getStatus == 'succeeded' && isclick) {
       ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
@@ -105,10 +114,25 @@ const ShopProfileScreen = ({navigation, route}) => {
     }
   }, [getStatus]);
 
+  //kiem tra gio
+  const checkhours = (hrs1, hrs2) => {
+    if (hrs1 && hrs2) {
+      const hours1 = new Date(hrs1).getHours(); ;
+      const hours2 = new Date(hrs2).getHours(); 
+      return hours1 < hours2;
+    } else {
+      return false;
+    }
+  };
+  
   //quản lí state correct(là state cho phép cập nhật, nếu sai thì nút cập nhật bị mờ đi)
   useEffect(() => {
     const checkphone = checkPhone(phone);
-    !name || !phone || checkphone || mycategory.length == 0
+    !name ||
+    !phone ||
+    checkphone ||
+    mycategory.length == 0 ||
+    !checkhours(open, close)
       ? setCorrect(false)
       : setCorrect(true);
   }, [name, phone, mycategory, open, close]);
@@ -130,19 +154,18 @@ const ShopProfileScreen = ({navigation, route}) => {
     setshowPicker(false);
   };
 
-  //lấy id loại khi vào component
+  //lay toa to moi khi co dia chi thay doi
   useEffect(() => {
-    const idcategory = getData.shopCategory.map(item => {
-      return item.shopCategory_id;
-    });
-    setMyCategory(idcategory);
-  }, []);
+    if (address) {
+      getGeocoding();
+    }
+  }, [address]);
 
+  //khi tu component addtess tro ve
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       if (description) {
         setAddress(description);
-        getGeocoding();
       }
     });
     return unsubscribe;
@@ -155,6 +178,10 @@ const ShopProfileScreen = ({navigation, route}) => {
     }
   }, [imagePath]);
 
+  useEffect(()=>{
+    console.log(open)
+    console.log(close)
+  },[open,close])
   //lay toa do
   const getGeocoding = async () => {
     try {
@@ -229,7 +256,11 @@ const ShopProfileScreen = ({navigation, route}) => {
           value={phone ? handleChangeText(phone) : phone}
           keyboardType="numeric"
           onChangeText={text => setPhone(text)}
-          error={phone ? checkPhone(phone) : 'Đây là thông tin bắt buộc'}
+          error={
+            phone
+              ? checkPhone(handleChangeText(phone))
+              : 'Đây là thông tin bắt buộc'
+          }
         />
         <TextComponent text={'LOẠI HÌNH BÁN HÀNG'} />
         <MultiSelect
@@ -266,7 +297,7 @@ const ShopProfileScreen = ({navigation, route}) => {
         <TouchableOpacity
           style={[styles.input, {minHeight: 50}]}
           onPress={() => {
-            navigation.navigate('ShopCategories');
+            navigation.navigate('AddAddress');
           }}>
           <TextComponent
             text={address}

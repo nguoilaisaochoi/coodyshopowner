@@ -19,7 +19,7 @@ import {
   RestoreProductCate,
 } from '../../Redux/Reducers/ShopOwnerReducer';
 
-const FoodGroup = () => {
+const FoodGroupdel = () => {
   const {
     ProductCategoriesData,
     ProductCategoriesStatus,
@@ -35,7 +35,7 @@ const FoodGroup = () => {
 
   useEffect(() => {
     if (ProductCategoriesStatus == 'succeeded') {
-      setGroup(ProductCategoriesData.filter(group => !group.isDeleted));
+      setGroup(ProductCategoriesData.filter(group => group.isDeleted));
       setModalVisible(false);
       setIsLoading(false);
     }
@@ -56,7 +56,8 @@ const FoodGroup = () => {
 
   //kiem tra truoc khi chuyen navigate
   const gotonavigate = item => {
-    navigation.navigate('GroupFoodEdit', {item: item});
+    setModalVisible(true);
+    setIdGroup(item._id);
   };
 
   const renderItem = ({item}) => {
@@ -85,17 +86,6 @@ const FoodGroup = () => {
         renderItem={renderItem}
         keyExtractor={item => item._id}
       />
-      <TouchableOpacity
-        style={styles.imgadd}
-        activeOpacity={0.7}
-        onPress={() => {
-          navigation.navigate('GroupFoodEdit');
-        }}>
-        <Image
-          style={{width: '100%', resizeMode: 'contain'}}
-          source={require('../../assets/images/shopowner/add.png')}
-        />
-      </TouchableOpacity>
       {modalVisible && (
         <ModalComponent
           setModalVisible={setModalVisible}
@@ -111,7 +101,7 @@ const FoodGroup = () => {
   );
 };
 
-export default FoodGroup;
+export default FoodGroupdel;
 
 const styles = StyleSheet.create({
   container: {

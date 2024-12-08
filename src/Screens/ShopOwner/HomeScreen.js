@@ -18,6 +18,7 @@ import ButtonComponent from '../../components/ButtonComponent';
 import {connectSocket, disconnectSocket, getSocket} from '../../socket/socket';
 import {useDispatch, useSelector} from 'react-redux';
 import {
+  GetOfflince,
   GetProduct,
   GetProductCategories,
   GetShop,
@@ -26,6 +27,7 @@ import {
 const HomeScreen = () => {
   const [Order, setOrder] = useState([]); //set,read api data đơn hàng
   const {user} = useSelector(state => state.login); //thông tin khi đăng nhập
+  const {getData} = useSelector(state => state.shopowner);
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
   //const IDshopowner = useState('671346345647791835ac3a3b');
   const [confirmedOrders, setConfirmedOrders] = useState({});
@@ -55,10 +57,10 @@ const HomeScreen = () => {
     //nhận đơn
     socketInstance.on('new_order_created', handleNewOrder);
     //huỷ đơn
-    socketInstance.on('order_cancelled', handlecancelOrder);  
+    socketInstance.on('order_cancelled', handlecancelOrder);
     //xoá danh sách khi tài đế đẫ lấy món
     socketInstance.on('order_status_updated', data => {
-      if (data.status == "Đang giao hàng") {
+      if (data.status == 'Đang giao hàng') {
         setOrder(prevOrders =>
           prevOrders.filter(order => order._id !== data.orderId),
         );
@@ -67,6 +69,7 @@ const HomeScreen = () => {
 
     return () => {
       disconnectSocket();
+      dispatch(GetOfflince(user._id));
     };
   }, []);
   //
@@ -78,7 +81,11 @@ const HomeScreen = () => {
   //log
   const confirmOrder = orderId => {
     const socketInstance = getSocket();
-    socketInstance.emit('confirm_order', orderId);
+    if (getData.status != 'Mở cửa') {
+      ToastAndroid.show('Không thể nhận đơn khi đóng cửa', ToastAndroid.SHORT);
+    } else {
+      socketInstance.emit('confirm_order', orderId);
+    }
   };
   const cancelOrder = orderId => {
     const socketInstance = getSocket();
@@ -163,7 +170,9 @@ const HomeScreen = () => {
                 style={[{backgroundColor: appColor.primary}, styles.iditem]}
                 onPress={() => {
                   confirmOrder(_id);
-                  setConfirmedOrders({...confirmedOrders, [_id]: true});
+                  getData.status == 'Mở cửa'
+                    ? setConfirmedOrders({...confirmedOrders, [_id]: true})
+                    : null;
                 }}>
                 <TextComponent
                   text={'Xác nhận'}

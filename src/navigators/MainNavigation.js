@@ -13,8 +13,8 @@ import Food from '../Screens/ShopOwner/Food';
 import EditFood from '../Screens/ShopOwner/EditFood';
 
 import ShopProfileScreen from '../Screens/ShopOwner/ShopProfileScreen';
-import ShopCategories from '../Screens/ShopOwner/AddAddress';
 import EditGroupFood from '../Screens/ShopOwner/EditGroupFood';
+import AddAddress from '../Screens/ShopOwner/AddAddress';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -28,7 +28,7 @@ const MainNavigation = () => {
       <Stack.Screen name="EditFood" component={EditFood} />
       <Stack.Screen name="GroupFoodEdit" component={EditGroupFood} />
       <Stack.Screen name="ShopProfile" component={ShopProfileScreen} />
-      <Stack.Screen name="ShopCategories" component={ShopCategories} />
+      <Stack.Screen name="AddAddress" component={AddAddress} />
     </Stack.Navigator>
   );
 };

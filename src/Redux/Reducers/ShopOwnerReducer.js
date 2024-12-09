@@ -10,7 +10,7 @@ export const GetShop = createAsyncThunk('getshop', async id => {
 
 //lấy toàn bộ món của shop
 export const GetProduct = createAsyncThunk('getproducts', async id => {
-  const response = await AxiosInstance().get(`products/shopOwner/${id}`);
+  const response = await AxiosInstance().get(`products/shopOwner/normal/${id}`);
   return response.data;
 });
 

@@ -63,7 +63,7 @@ const FoodGroupdel = () => {
   const renderItem = ({item}) => {
     return (
       <TouchableOpacity
-        style={[styles.item, {opacity: item.isDeleted ? 0.7 : 1}]}
+        style={[styles.item]}
         activeOpacity={0.8}
         onPress={() => {
           gotonavigate(item);

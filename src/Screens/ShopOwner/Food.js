@@ -32,19 +32,19 @@ const Food = () => {
   //animated
   useEffect(() => {
     if (selected == 'Món') {
-      transx.value = withTiming(0, {
+      transx.value = withTiming(appInfor.sizes.width * 0.03, {
         duration: 300,
       });
     } else if (selected == 'Món đã xoá') {
-      transx.value = withTiming(appInfor.sizes.width * 0.25, {
+      transx.value = withTiming(appInfor.sizes.width * 0.26, {
         duration: 300,
       });
-    }else if(selected=="Nhóm"){
+    } else if (selected == 'Nhóm') {
       transx.value = withTiming(appInfor.sizes.width * 0.5, {
         duration: 300,
       });
-    }else{
-      transx.value = withTiming(appInfor.sizes.width * 0.75, {
+    } else {
+      transx.value = withTiming(appInfor.sizes.width * 0.73, {
         duration: 300,
       });
     }
@@ -141,7 +141,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     borderBottomWidth: 1,
     borderBottomColor: appColor.lightgray,
-    gap: 5,
+    paddingLeft: '3%',
+    paddingRight: '3%',
   },
   btn: {
     flex: 1,

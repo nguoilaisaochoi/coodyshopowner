@@ -231,7 +231,7 @@ const HomeScreen = () => {
               source={require('../../assets/images/shopowner/shop.png')}
             />
             <TextComponent
-              text={'Bạn chưa có đơn hàng nào'}
+              text={getData.status=="Mở cửa"?'Bạn chưa có đơn hàng nào':"Bạn đang đóng cửa"}
               color={appColor.text}
               fontFamily={fontFamilies.bold}
               fontsize={20}

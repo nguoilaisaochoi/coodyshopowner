@@ -26,25 +26,28 @@ const Food = () => {
       zIndex: 1,
       transform: [{translateX: transx.value}],
       height: 2,
+      paddingLeft: '3%',
+      paddingRight: '3%',
       backgroundColor: appColor.primary,
     };
   });
+  
   //animated
   useEffect(() => {
     if (selected == 'Món') {
-      transx.value = withTiming(appInfor.sizes.width * 0.03, {
+      transx.value = withTiming(0, {
         duration: 300,
       });
     } else if (selected == 'Món đã xoá') {
-      transx.value = withTiming(appInfor.sizes.width * 0.26, {
+      transx.value = withTiming(appInfor.sizes.width * 0.23, {
         duration: 300,
       });
     } else if (selected == 'Nhóm') {
-      transx.value = withTiming(appInfor.sizes.width * 0.5, {
+      transx.value = withTiming(appInfor.sizes.width * 0.47, {
         duration: 300,
       });
     } else {
-      transx.value = withTiming(appInfor.sizes.width * 0.73, {
+      transx.value = withTiming(appInfor.sizes.width * 0.71, {
         duration: 300,
       });
     }
@@ -141,8 +144,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     borderBottomWidth: 1,
     borderBottomColor: appColor.lightgray,
-    paddingLeft: '3%',
-    paddingRight: '3%',
+    marginLeft: '3%',
+    marginRight: '3%',
   },
   btn: {
     flex: 1,

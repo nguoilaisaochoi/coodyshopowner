@@ -120,12 +120,14 @@ const HomeScreen = () => {
               text={formatCurrency(price)}
               fontFamily={fontFamilies.bold}
             />
-            <TextComponent
-              text={note ?? ''}
-              fontFamily={fontFamilies.medium}
-              color={appColor.subText}
-              fontsize={13}
-            />
+            {note.length >= 1 && (
+              <TextComponent
+                text={note}
+                fontFamily={fontFamilies.medium}
+                color={appColor.subText}
+                fontsize={13}
+              />
+            )}
           </View>
         </View>
       </View>
@@ -231,7 +233,11 @@ const HomeScreen = () => {
               source={require('../../assets/images/shopowner/shop.png')}
             />
             <TextComponent
-              text={getData.status=="Mở cửa"?'Bạn chưa có đơn hàng nào':"Bạn đang đóng cửa"}
+              text={
+                getData.status == 'Mở cửa'
+                  ? 'Bạn chưa có đơn hàng nào'
+                  : 'Bạn đang đóng cửa'
+              }
               color={appColor.text}
               fontFamily={fontFamilies.bold}
               fontsize={20}

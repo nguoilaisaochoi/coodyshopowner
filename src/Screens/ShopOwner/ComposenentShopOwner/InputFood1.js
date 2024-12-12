@@ -12,11 +12,16 @@ const InputFood1 = ({title, value, onChangeText, keyboardType, column}) => {
         styles={{width: column ? '100%' : '28%', textTransform: 'uppercase'}}
       />
       <TextInput
-        style={[styles.input, {width: column ? '100%' : '72%'}]}
+        style={[
+          styles.input,
+          {width: column ? '100%' : '72%', height: column ? 100 : 'auto'},
+        ]}
         value={value}
         color={appColor.text}
         onChangeText={onChangeText}
         keyboardType={keyboardType ?? 'default'}
+        multiline={true}
+        textAlignVertical={column ? 'top' : 'center'}
       />
     </View>
   );

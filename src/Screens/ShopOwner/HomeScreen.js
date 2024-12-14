@@ -196,7 +196,7 @@ const HomeScreen = () => {
         {/**/}
         <View style={styles.itembottom}>
           <View style={{flexDirection: 'row'}}>
-            <TextComponent text={'Thu nhập: '} fontFamily={fontFamilies.bold} />
+            <TextComponent text={'Tổng tiền: '} fontFamily={fontFamilies.bold} />
             <TextComponent
               text={formatCurrency(totalPrice - shippingfee)}
               fontFamily={fontFamilies.bold}

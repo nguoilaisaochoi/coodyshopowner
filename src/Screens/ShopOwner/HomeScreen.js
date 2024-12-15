@@ -36,10 +36,9 @@ const HomeScreen = () => {
   const dispatch = useDispatch();
   //
   useEffect(() => {
-    connectSocket();
+    connectSocket(user);
     callAPI();
     const socketInstance = getSocket();
-    socketInstance.emit('join_room', user._id);
     const handleNewOrder = dataGot => {
       const newOrder = dataGot.order;
       setOrder(oldOrders => [...oldOrders, newOrder]);

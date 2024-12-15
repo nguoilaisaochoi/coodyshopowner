@@ -1,5 +1,4 @@
 // socket.js
-import {useSelector} from 'react-redux';
 import socketIOClient from 'socket.io-client';
 
 /*

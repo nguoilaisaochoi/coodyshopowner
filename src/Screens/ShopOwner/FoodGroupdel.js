@@ -32,14 +32,21 @@ const FoodGroupdel = () => {
   const [idGroup, setIdGroup] = useState(null); //lấy id group
   const [Group, setGroup] = useState(null); //lấy id group
   const [isLoading, setIsLoading] = useState(false);
-
+  const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     if (ProductCategoriesStatus == 'succeeded') {
       setGroup(ProductCategoriesData.filter(group => group.isDeleted));
       setModalVisible(false);
       setIsLoading(false);
+      setRefreshing(false);
     }
   }, [ProductCategoriesStatus]);
+
+  //Refreshing api
+  const fetchRevenue = () => {
+    setRefreshing(true);
+    dispatch(GetProductCategories(user._id));
+  };
 
   //khoi phuc mon
   const restore = () => {
@@ -85,6 +92,8 @@ const FoodGroupdel = () => {
         data={Group}
         renderItem={renderItem}
         keyExtractor={item => item._id}
+        refreshing={refreshing} // Trạng thái làm mới
+        onRefresh={fetchRevenue} // Hàm gọi lại để làm mới
       />
       {modalVisible && (
         <ModalComponent

@@ -196,20 +196,23 @@ const HomeScreen = () => {
         {/**/}
         <View style={styles.itembottom}>
           <View style={{flexDirection: 'row'}}>
-            <TextComponent text={'Tổng tiền: '} fontFamily={fontFamilies.bold} />
+            <TextComponent
+              text={'Tổng tiền: '}
+              fontFamily={fontFamilies.bold}
+            />
             <TextComponent
               text={formatCurrency(totalPrice - shippingfee)}
               fontFamily={fontFamilies.bold}
               color={appColor.primary}
             />
+            {voucher && (
+              <TextComponent
+                text={` (Đã giảm: ${formatCurrency(voucher.discountAmount)})`}
+                color={appColor.text}
+                fontFamily={fontFamilies.bold}
+              />
+            )}
           </View>
-          {voucher && (
-            <TextComponent
-              text={'Có mã giảm giá'}
-              color={appColor.text}
-              fontFamily={fontFamilies.bold}
-            />
-          )}
         </View>
       </View>
     );

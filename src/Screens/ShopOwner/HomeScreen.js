@@ -6,7 +6,6 @@ import {
   FlatList,
   Modal,
   TextInput,
-  Alert,
   ToastAndroid,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';

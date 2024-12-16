@@ -5,7 +5,7 @@ import TextComponent from '../../../components/TextComponent';
 import {appColor} from '../../../constants/appColor';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {opacity} from 'react-native-reanimated/lib/typescript/Colors';
+
 
 const Customday = ({
   Presscancel,
@@ -26,8 +26,8 @@ const Customday = ({
       } else {
         settoday(selectedTime);
       }
-      setshowPicker(false);
     }
+    setshowPicker(false);
   };
   useEffect(() => {
     if (fromday && today) {
@@ -51,7 +51,8 @@ const Customday = ({
               setTimeType('fromday');
             }}>
             <TextComponent
-              text={fromday ? fromday.toLocaleDateString() : 'Trống'}
+              text={fromday ? fromday.toLocaleDateString() : 'Chọn ngày'}
+              color={fromday ? appColor.text:appColor.subText}
             />
           </TouchableOpacity>
           <TextComponent text={'Đến ngày'} fontFamily={fontFamilies.semiBold} />
@@ -62,7 +63,8 @@ const Customday = ({
               setTimeType('today');
             }}>
             <TextComponent
-              text={today ? today.toLocaleDateString() : 'Trống'}
+              text={today ? today.toLocaleDateString() : 'Chọn ngày'}
+              color={today ? appColor.text:appColor.subText}
             />
           </TouchableOpacity>
           <View style={styles.viewbutton}>

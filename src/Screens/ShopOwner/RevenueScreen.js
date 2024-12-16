@@ -250,8 +250,8 @@ const RevenueScreen = () => {
           renderItem={renderItem}
           keyExtractor={item => item._id}
           contentContainerStyle={styles.faltlist}
-          refreshing={refreshing} // Trạng thái làm mới
-          onRefresh={fetchRevenue} // Hàm gọi lại để làm mới
+          refreshing={refreshing} 
+          onRefresh={fetchRevenue} 
         />
       ) : (
         <View style={styles.nondelivery}>

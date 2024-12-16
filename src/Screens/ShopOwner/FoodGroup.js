@@ -35,7 +35,7 @@ const FoodGroup = () => {
   const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     if (ProductCategoriesStatus == 'succeeded') {
-      setGroup(ProductCategoriesData.filter(group => !group.isDeleted));
+      setGroup(ProductCategoriesData);
       setModalVisible(false);
       setIsLoading(false);
       setRefreshing(false);

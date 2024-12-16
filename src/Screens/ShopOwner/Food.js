@@ -22,7 +22,7 @@ const Food = () => {
   const animatedStyle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
-      width: '25%',
+      width: '33%',
       zIndex: 1,
       transform: [{translateX: transx.value}],
       height: 2,
@@ -39,15 +39,11 @@ const Food = () => {
         duration: 300,
       });
     } else if (selected == 'Món đã xoá') {
-      transx.value = withTiming(appInfor.sizes.width * 0.23, {
+      transx.value = withTiming(appInfor.sizes.width * 0.32, {
         duration: 300,
       });
     } else if (selected == 'Nhóm') {
-      transx.value = withTiming(appInfor.sizes.width * 0.47, {
-        duration: 300,
-      });
-    } else {
-      transx.value = withTiming(appInfor.sizes.width * 0.71, {
+      transx.value = withTiming(appInfor.sizes.width * 0.63, {
         duration: 300,
       });
     }
@@ -104,28 +100,11 @@ const Food = () => {
             fontsize={15}
           />
         </TouchableOpacity>
-        {/*nhóm đã xoá*/}
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={() => {
-            setSelected('Nhóm đã xoá');
-          }}>
-          <TextComponent
-            text={'Nhóm đã xoá'}
-            styles={{
-              fontFamily: fontFamilies.bold,
-              color:
-                selected == 'Nhóm đã xoá' ? appColor.primary : appColor.text,
-            }}
-            fontsize={15}
-          />
-        </TouchableOpacity>
       </View>
       {/*body */}
       {selected == 'Món' && <FoodList />}
       {selected == 'Nhóm' && <FoodGroup />}
       {selected == 'Món đã xoá' && <FoodListdel />}
-      {selected == 'Nhóm đã xoá' && <FoodGroupdel />}
     </View>
   );
 };
@@ -152,6 +131,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
-    textAlign:'center'
+    textAlign:'center',
   },
 });

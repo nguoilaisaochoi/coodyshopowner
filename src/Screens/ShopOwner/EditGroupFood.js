@@ -105,19 +105,9 @@ const EditGroupFood = ({route, navigation}) => {
       {/*hiện yêu cầu thêm nếu khôg có item, có thì là xoá&sửa */}
       <View style={styles.bottom}>
         {item ? (
-          <>
-            <ButtonComponent
-              text={'Xoá nhóm món'}
-              width={'45%'}
-              backgroundColor={appColor.white}
-              borderColor={appColor.white}
-              onPress={() => {
-                setModalVisible(true);
-              }}
-            />
             <ButtonComponent
               text={'Sửa nhóm món'}
-              width={'45%'}
+              width={'100%'}
               styles={{opacity: correct ? 1 : 0.5}}
               color={appColor.white}
               onPress={() => {
@@ -127,7 +117,6 @@ const EditGroupFood = ({route, navigation}) => {
                 }
               }}
             />
-          </>
         ) : (
           <ButtonComponent
             text={'Thêm'}

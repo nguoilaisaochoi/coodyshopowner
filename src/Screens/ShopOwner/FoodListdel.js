@@ -41,10 +41,10 @@ const FoodListdel = () => {
       setfood(getproductData.filter(product => product.status == 'Ngừng bán'));
       setModalVisible(false);
       setIsLoading(false);
-      setRefreshing(false)
+      setRefreshing(false);
     }
   }, [productStatus]);
-  
+
   //Refreshing api
   const fetchRevenue = () => {
     setRefreshing(true);
@@ -111,8 +111,8 @@ const FoodListdel = () => {
         data={Food}
         renderItem={renderItem}
         keyExtractor={item => item._id}
-        refreshing={refreshing} // Trạng thái làm mới
-        onRefresh={fetchRevenue} // Hàm gọi lại để làm mới
+        refreshing={refreshing}
+        onRefresh={fetchRevenue}
       />
       {modalVisible && (
         <ModalComponent

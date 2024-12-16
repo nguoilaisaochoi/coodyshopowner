@@ -157,6 +157,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignSelf: 'center',
     marginTop: '2%',
+    marginBottom: '2%',
   },
   boximg: {
     marginTop: '1%',

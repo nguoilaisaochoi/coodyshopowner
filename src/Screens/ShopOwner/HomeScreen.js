@@ -6,7 +6,6 @@ import {
   FlatList,
   Modal,
   TextInput,
-  Alert,
   ToastAndroid,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
@@ -36,10 +35,9 @@ const HomeScreen = () => {
   const dispatch = useDispatch();
   //
   useEffect(() => {
-    connectSocket();
+    connectSocket(user);
     callAPI();
     const socketInstance = getSocket();
-    socketInstance.emit('join_room', user._id);
     const handleNewOrder = dataGot => {
       const newOrder = dataGot.order;
       setOrder(oldOrders => [...oldOrders, newOrder]);
@@ -120,12 +118,14 @@ const HomeScreen = () => {
               text={formatCurrency(price)}
               fontFamily={fontFamilies.bold}
             />
-            <TextComponent
-              text={note ?? ''}
-              fontFamily={fontFamilies.medium}
-              color={appColor.subText}
-              fontsize={13}
-            />
+            {note.length >= 1 && (
+              <TextComponent
+                text={note}
+                fontFamily={fontFamilies.medium}
+                color={appColor.subText}
+                fontsize={13}
+              />
+            )}
           </View>
         </View>
       </View>
@@ -194,20 +194,23 @@ const HomeScreen = () => {
         {/**/}
         <View style={styles.itembottom}>
           <View style={{flexDirection: 'row'}}>
-            <TextComponent text={'Thu nhập: '} fontFamily={fontFamilies.bold} />
+            <TextComponent
+              text={'Tổng tiền: '}
+              fontFamily={fontFamilies.bold}
+            />
             <TextComponent
               text={formatCurrency(totalPrice - shippingfee)}
               fontFamily={fontFamilies.bold}
               color={appColor.primary}
             />
+            {voucher && (
+              <TextComponent
+                text={` (Đã giảm: ${formatCurrency(voucher.discountAmount)})`}
+                color={appColor.text}
+                fontFamily={fontFamilies.bold}
+              />
+            )}
           </View>
-          {voucher && (
-            <TextComponent
-              text={'Có mã giảm giá'}
-              color={appColor.text}
-              fontFamily={fontFamilies.bold}
-            />
-          )}
         </View>
       </View>
     );
@@ -231,7 +234,11 @@ const HomeScreen = () => {
               source={require('../../assets/images/shopowner/shop.png')}
             />
             <TextComponent
-              text={'Bạn chưa có đơn hàng nào'}
+              text={
+                getData.status == 'Mở cửa'
+                  ? 'Bạn chưa có đơn hàng nào'
+                  : 'Bạn đang đóng cửa'
+              }
               color={appColor.text}
               fontFamily={fontFamilies.bold}
               fontsize={20}

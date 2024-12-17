@@ -34,15 +34,23 @@ const FoodListdel = () => {
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
   const [idProduct, setIdProduct] = useState(null); //lấy id product
   const [isLoading, setIsLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   //set data khi vừa vào component
   useEffect(() => {
     if (productStatus == 'succeeded') {
       setfood(getproductData.filter(product => product.status == 'Ngừng bán'));
       setModalVisible(false);
       setIsLoading(false);
+      setRefreshing(false);
     }
   }, [productStatus]);
-  
+
+  //Refreshing api
+  const fetchRevenue = () => {
+    setRefreshing(true);
+    dispatch(GetProduct(user._id));
+  };
+
   //check co ngung ban hay chua
   const gotonavigate = item => {
     setModalVisible(true);
@@ -103,6 +111,8 @@ const FoodListdel = () => {
         data={Food}
         renderItem={renderItem}
         keyExtractor={item => item._id}
+        refreshing={refreshing}
+        onRefresh={fetchRevenue}
       />
       {modalVisible && (
         <ModalComponent

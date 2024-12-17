@@ -142,13 +142,13 @@ const LoginScreen = ({navigation}) => {
       <RowComponent>
         <TextComponent
           text={'Coody ShopOwner '}
-          fontsize={26}
+          fontsize={25}
           fontFamily={fontFamilies.bold}
           color={appColor.primary}
         />
         <TextComponent
           text={'Xin Chào'}
-          fontsize={26}
+          fontsize={25}
           fontFamily={fontFamilies.bold}
         />
       </RowComponent>
@@ -158,7 +158,7 @@ const LoginScreen = ({navigation}) => {
         fontFamily={fontFamilies.bold}
         color={appColor.subText}
       />
-      <SpaceComponent height={40} />
+      <SpaceComponent height={20} />
       <InputComponent
         label={'Tài khoản'}
         placeholder={'Nhập email/SĐT'}
@@ -175,7 +175,7 @@ const LoginScreen = ({navigation}) => {
           />
         </View>
       )}
-      <SpaceComponent height={30} />
+      <SpaceComponent height={20} />
       <InputComponent
         label={'Mật khẩu'}
         placeholder={'Nhập mật khẩu'}

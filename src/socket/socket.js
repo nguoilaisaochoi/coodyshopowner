@@ -10,10 +10,11 @@ const host = 'https://apiproject-ylai.onrender.com';
 
 let socket;
 
-export const connectSocket = () => {
+export const connectSocket = user => {
   socket = socketIOClient(host);
   socket.on('connect', () => {
     console.log('[Socket___Đã kết nối]', socket.id);
+    socket.emit('join_room', user._id);
   });
 
   socket.on('connect_error', error => {
@@ -34,4 +35,3 @@ export const disconnectSocket = () => {
 export const getSocket = () => {
   return socket;
 };
-

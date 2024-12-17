@@ -5,7 +5,10 @@ import {appColor} from '../../constants/appColor';
 import TextInputComponent from './ComposenentShopOwner/TextInputComponent';
 import {useDispatch, useSelector} from 'react-redux';
 import ButtonComponent from '../../components/ButtonComponent';
-import {ChangePassword} from '../../Redux/Reducers/ShopOwnerReducer';
+import {
+  ChangePassword,
+  GetOfflince,
+} from '../../Redux/Reducers/ShopOwnerReducer';
 import {logout} from '../../Redux/Reducers/LoginSlice';
 import LoadingModal from '../../modal/LoadingModal';
 import TextComponent from '../../components/TextComponent';
@@ -33,13 +36,14 @@ const ChangePassScreen = () => {
     if (ChangePasswordStatus == 'succeeded' && isLoading) {
       ToastAndroid.show('Thành công! Hãy đăng nhập lại', ToastAndroid.SHORT);
       dispatch(logout());
+      dispatch(GetOfflince(user._id));
       setIsLoading(false);
     } else if (ChangePasswordStatus == 'failed' && isLoading) {
       setIsLoading(false);
     }
   }, [ChangePasswordStatus]);
   useEffect(() => {
-    oldpass && newpass && repass && repass == newpass
+    oldpass && newpass && repass && repass == newpass && newpass.length >= 6
       ? setcorrect(true)
       : setcorrect(false);
   }, [oldpass, newpass, repass]);
@@ -49,18 +53,21 @@ const ChangePassScreen = () => {
       <ScrollView style={{flex: 1}}>
         <TextInputComponent
           text={'Mật khẩu cũ'}
+          placeholder={'Nhập mật khẩu'}
           value={oldpass}
           onChangeText={text => setOldpass(text)}
           isPassword={true}
         />
         <TextInputComponent
           text={'Mật khẩu mới'}
+          placeholder={'Tối thiểu 6 ký tự'}
           value={newpass}
           onChangeText={text => setNewpass(text)}
           isPassword={true}
         />
         <TextInputComponent
           text={'Xác nhận mật khẩu mới'}
+          placeholder={'Xác nhận mật khẩu mới'}
           value={repass}
           onChangeText={text => setRepass(text)}
           isPassword={true}

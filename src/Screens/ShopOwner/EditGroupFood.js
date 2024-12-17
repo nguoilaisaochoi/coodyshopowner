@@ -62,12 +62,18 @@ const EditGroupFood = ({route, navigation}) => {
   useEffect(() => {
     if (
       AddProductCateStatus == 'succeeded' ||
-      DeleteProductCateStatus == 'succeeded' ||
       UpdateProductCateStatus == 'succeeded'
     ) {
       dispatch(GetProductCategories(user._id));
     }
-  }, [AddProductCateStatus, DeleteProductCateStatus, UpdateProductCateStatus]);
+  }, [AddProductCateStatus, UpdateProductCateStatus]);
+
+  //neu thanh cong goi lai api lay nhom mon an
+  useEffect(() => {
+    if (DeleteProductCateStatus == 'succeeded') {
+      dispatch(GetProductCategories(user._id));
+    }
+  }, [DeleteProductCateStatus]);
 
   //cap nhat lai nhom mon
   useEffect(() => {
@@ -154,6 +160,7 @@ const EditGroupFood = ({route, navigation}) => {
           Presscancel={() => setModalVisible(false)}
           Pressok={() => {
             delgroup();
+            setModalVisible(false)
           }}
           titile={'Xác nhận xoá'}
         />

@@ -84,13 +84,14 @@ const Account = () => {
             fontsize={23}
             color={appColor.white}
             fontFamily={fontFamilies.semiBold}
-            styles={{opacity: 0.9}}
           />
           <TextComponent
             text={getData.name}
             fontsize={23}
             color={appColor.white}
             fontFamily={fontFamilies.bold}
+            width={'90%'}
+            numberOfLines={3}
           />
           <View style={styles.status}>
             <TextComponent
@@ -142,6 +143,7 @@ const Account = () => {
         <ItemAccount
           text={'Đăng xuất'}
           screen={() => {
+            dispatch(GetOfflince(user._id))
             dispatch(logout());
           }}
         />
@@ -159,9 +161,11 @@ const styles = StyleSheet.create({
     backgroundColor: appColor.white,
   },
   header: {
-    flex: 0.4,
+    minHeight: '17%',
     backgroundColor: appColor.primary,
-    padding: '2%',
+    padding: '3%',
+    paddingLeft: '6%',
+    paddingRight: '6%',
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',

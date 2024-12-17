@@ -34,14 +34,22 @@ const FoodList = () => {
   const [modalVisible, setModalVisible] = useState(false); //modal huỷ
   const [idProduct, setIdProduct] = useState(null); //lấy id product
   const [isLoading, setIsLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   //set data khi vừa vào component
   useEffect(() => {
     if (productStatus == 'succeeded') {
       setfood(getproductData.filter(product => product.status == 'Còn món'));
       setModalVisible(false);
       setIsLoading(false);
+      setRefreshing(false);
     }
   }, [productStatus]);
+
+  //Refreshing api
+  const fetchRevenue = () => {
+    setRefreshing(true);
+    dispatch(GetProduct(user._id));
+  };
 
   //check co ngung ban hay chua
   const gotonavigate = item => {
@@ -102,6 +110,8 @@ const FoodList = () => {
         data={Food}
         renderItem={renderItem}
         keyExtractor={item => item._id}
+        refreshing={refreshing} // Trạng thái làm mới
+        onRefresh={fetchRevenue} // Hàm gọi lại để làm mới
       />
       <TouchableOpacity
         style={styles.imgadd}
@@ -140,18 +150,17 @@ const styles = StyleSheet.create({
   },
   item: {
     width: '90%',
-    minHeight: '13%',
     backgroundColor: appColor.white,
     elevation: 10,
     flexDirection: 'row',
     padding: '2%',
     borderRadius: 10,
     alignSelf: 'center',
-    marginBottom: '3%',
     marginTop: '2%',
+    marginBottom: '2%',
   },
   boximg: {
-    marginTop: '2%',
+    marginTop: '1%',
     width: 80,
     height: 80,
     overflow: 'hidden',

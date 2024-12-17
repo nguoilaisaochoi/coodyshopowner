@@ -244,14 +244,14 @@ const RevenueScreen = () => {
         />
       </View>
       {/*danh sách đơn hàng và hiển thị thông  không có đơn hàng khi trống*/}
-      {Data ? (
+      {Data?.orders?.length>=1 ? (
         <FlatList
           data={Data.orders}
           renderItem={renderItem}
           keyExtractor={item => item._id}
           contentContainerStyle={styles.faltlist}
-          refreshing={refreshing} // Trạng thái làm mới
-          onRefresh={fetchRevenue} // Hàm gọi lại để làm mới
+          refreshing={refreshing} 
+          onRefresh={fetchRevenue} 
         />
       ) : (
         <View style={styles.nondelivery}>

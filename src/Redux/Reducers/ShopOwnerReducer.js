@@ -364,7 +364,7 @@ export const ShopSlice = createSlice({
         state.DeleteProductCateStatus = 'failed';
         if (action.error.message == 'Request failed with status code 400') {
           ToastAndroid.show(
-            'Nhóm này đang tồn tại trong sản phẩm',
+            'Có món đang sử dụng tên nhóm này.',
             ToastAndroid.SHORT,
           );
         } else {

@@ -1,6 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import AxiosInstance from '../../helpers/AxiosInstance';
-import { ToastAndroid } from 'react-native';
+import {ToastAndroid} from 'react-native';
 
 //láy thông tin chửa hàng
 export const GetShop = createAsyncThunk('getshop', async id => {
@@ -131,9 +131,7 @@ export const AddProductCate = createAsyncThunk(
 export const DeleteProductCate = createAsyncThunk(
   'deleteproductcate',
   async id => {
-    const response = await AxiosInstance().delete(
-      `productCategories/softdelete/${id}`,
-    );
+    const response = await AxiosInstance().delete(`productCategories/${id}`);
     return response.data;
   },
 );
@@ -364,7 +362,14 @@ export const ShopSlice = createSlice({
       })
       .addCase(DeleteProductCate.rejected, (state, action) => {
         state.DeleteProductCateStatus = 'failed';
-        console.error('Lỗi xoa nhom mon an' + action.error.message);
+        if (action.error.message == 'Request failed with status code 400') {
+          ToastAndroid.show(
+            'Nhóm này đang tồn tại trong sản phẩm',
+            ToastAndroid.SHORT,
+          );
+        } else {
+          ToastAndroid.show('Lỗi khi xoá', ToastAndroid.SHORT);
+        }
       })
       //update nhom on
       .addCase(UpdateProductCate.pending, (state, action) => {

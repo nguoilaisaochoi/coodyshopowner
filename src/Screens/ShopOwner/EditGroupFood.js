@@ -62,12 +62,18 @@ const EditGroupFood = ({route, navigation}) => {
   useEffect(() => {
     if (
       AddProductCateStatus == 'succeeded' ||
-      DeleteProductCateStatus == 'succeeded' ||
       UpdateProductCateStatus == 'succeeded'
     ) {
       dispatch(GetProductCategories(user._id));
     }
-  }, [AddProductCateStatus, DeleteProductCateStatus, UpdateProductCateStatus]);
+  }, [AddProductCateStatus, UpdateProductCateStatus]);
+
+  //neu thanh cong goi lai api lay nhom mon an
+  useEffect(() => {
+    if (DeleteProductCateStatus == 'succeeded') {
+      dispatch(GetProductCategories(user._id));
+    }
+  }, [DeleteProductCateStatus]);
 
   //cap nhat lai nhom mon
   useEffect(() => {
@@ -105,9 +111,19 @@ const EditGroupFood = ({route, navigation}) => {
       {/*hiện yêu cầu thêm nếu khôg có item, có thì là xoá&sửa */}
       <View style={styles.bottom}>
         {item ? (
+          <>
+            <ButtonComponent
+              text={'Xoá nhóm món'}
+              width={'45%'}
+              backgroundColor={appColor.white}
+              borderColor={appColor.white}
+              onPress={() => {
+                setModalVisible(true);
+              }}
+            />
             <ButtonComponent
               text={'Sửa nhóm món'}
-              width={'100%'}
+              width={'45%'}
               styles={{opacity: correct ? 1 : 0.5}}
               color={appColor.white}
               onPress={() => {
@@ -117,6 +133,7 @@ const EditGroupFood = ({route, navigation}) => {
                 }
               }}
             />
+          </>
         ) : (
           <ButtonComponent
             text={'Thêm'}
@@ -143,6 +160,7 @@ const EditGroupFood = ({route, navigation}) => {
           Presscancel={() => setModalVisible(false)}
           Pressok={() => {
             delgroup();
+            setModalVisible(false)
           }}
           titile={'Xác nhận xoá'}
         />
